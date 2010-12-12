@@ -1,0 +1,39 @@
+<div style="background-color:black;">
+<dtml-var manage_absolute_urls>
+</div>
+
+<dtml-unless MANAGE_TABS_NO_BANNER>
+    <div style="background-color:black; color:white;">
+    <dtml-if meta_type>
+      <dtml-var meta_type>
+    <dtml-else>
+    Object
+    </dtml-if> 
+
+    at <dtml-var expr="tabs_path_default(REQUEST)">
+    <dtml-if locked_in_version>
+      <dtml-if modified_in_version>
+        <img src="&dtml-BASEPATH1;/p_/locked"
+         alt="This item has been modified in this version" style="nospace" />
+      <dtml-else>
+        <img src="&dtml-BASEPATH1;/p_/lockedo"
+         alt="This item has been modified in another version" style="nospace" />
+              (<em><dtml-var locked_in_version></em>)
+      </dtml-if>
+    </dtml-if>
+
+  </div>
+
+<dtml-if Zope-Version>
+<div class="system-msg">
+<em>You are currently working in version &dtml-Zope-Version;</em>
+</div>
+</dtml-if>
+</dtml-unless>
+
+<dtml-if manage_tabs_message>
+<div class="system-msg">
+<dtml-var manage_tabs_message> 
+(<dtml-var ZopeTime fmt="%Y-%m-%d %H:%M">)
+</div>
+</dtml-if>

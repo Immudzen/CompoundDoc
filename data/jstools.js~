@@ -1,0 +1,77 @@
+function select_option( selectbox, index )
+{
+    for( var i = 0; i < selectbox.options.length; i++ )
+    {
+        if( i == index )
+            {
+            selectbox.options[i].selected = true;
+            }
+        else
+            {
+            selectbox.options[i].selected = false;
+            }
+    }
+}  
+  
+function jumpTo(self)
+{
+var value = self.value;
+var location = new String(window.location);
+var index = location.search("#");
+if (index != -1)
+    {
+      var location = location.slice(0, index);
+    }
+var url = location + "#" + value;
+select_option(self, 0);
+window.location = url;
+}
+
+function disableHighLight(self)
+  {
+  var ahrefs = self.parentNode.getElementsByTagName("a");
+  for (var i=0;i<ahrefs.length;i++)
+    {
+    var classes = ahrefs[i].className.split(" ");
+    var newClasses = [];
+    for (var j=0;j<classes.length;j++)
+        {
+        if (classes[j] != "highLight")
+            {
+            newClasses.push(classes[j]);
+            }
+        }
+    ahrefs[i].className = newClasses.join("  ");
+    }
+  }
+
+
+function replaceContent(self, url, elementId)
+{ 
+    var xhr = new XMLHttpRequest();
+   
+    xhr.onreadystatechange  = function()
+    { 
+         if(xhr.readyState  == 4)
+         {
+              if(xhr.status  == 200)
+                 { 
+                 document.getElementById(elementId).innerHTML = xhr.responseText;
+                 disableHighLight(self);
+                 self.className = self.className + ' highLight';
+                 }
+              else
+                 { 
+                 document.getElementById(elementId).innerHTML="Error code " + xhr.status;
+                 }
+         }
+    }; 
+
+   xhr.open("GET", url, true); 
+   xhr.send(null); 
+} 
+
+function loadRecord(self, elementSelector, sourceURL) {
+var value = self.value;
+$(""+elementSelector+"").load(""+sourceURL+value+"");
+}

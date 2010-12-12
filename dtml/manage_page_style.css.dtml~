@@ -1,0 +1,296 @@
+<dtml-call "RESPONSE.setHeader('Content-Type','text/css')">
+html body{
+  color: #000;
+  background-color: #fff;
+  padding:0px;
+  margin:0px;
+  font-family: sans-serif
+}
+
+h1 {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+h2 {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+h3 {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+table.managetabs {
+  border-collapse: collapse;
+  width:100%;
+  padding:0px;
+  margin:0px;
+  border: 0px none #000;
+  border-spacing: 0px;
+}
+
+p {
+  font-size: 10px;
+  color: #333;
+}
+
+th {
+  font-weight: bold;
+  font-size: 10px;
+  color: #333;
+}
+
+.form-help {
+  font-size: 14px;
+  color: #333;
+}
+
+.std-text {
+  font-size: 14px;
+  color: #333;
+}
+
+.tab-small {
+  font-size: 12px;
+  color: #333;
+}
+
+.tabsmall1 {
+  font-size: 12px;
+  color: #333;
+  background-color:#fff;
+  vertical-align:bottom;
+  text-align:center;
+}
+
+.tabsmall2 {
+  font-size: 12px;
+  color: #333;
+  background-color:#efefef;
+  vertical-align:bottom;
+  text-align:center;
+}
+
+.location-bar {
+  background-color: #efefef;
+  border: none;
+}
+
+.strong-header {
+  font-size: 12px;
+  font-weight: bold;
+  background-color: #000;
+  color: #fff;
+}
+
+.list-header {
+  background-color: #c0c0c0;
+  border: none;
+}
+
+.list-item {
+  font-size: 14px;
+}
+
+.list-nav {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.row-normal {
+  background-color: #fff;
+  border: none;
+
+}
+
+.row-hilite {
+  background-color: #efefef;
+  border: none;
+}
+
+.section-bar {
+  background-color: #c0c0c0;
+  border: none;
+}
+
+.system-msg {
+  font-size: 12px;
+  background-color: #fff;
+  border:  1px solid #000;
+  margin-bottom: 6px;
+  margin-top: 6px;
+  padding: 4px;
+  width: 100%;
+  color: #603;
+}
+
+.form-title {
+  font-weight: bold;
+  font-size: 12px;
+  color: #333;
+}
+
+.form-label {
+  font-weight: bold;
+  font-size: 12px;
+  color: #333;
+}
+
+.form-opxional {
+  font-weight: bold;
+  font-style: italic;
+  font-size: 12px;
+  color: #333;
+}
+
+.form-element {
+  font-size: 12px;
+  color: #000;
+}
+
+.form-text {
+  font-size: 12px;
+  color: #333;
+}
+
+.form-mono {
+  font-family: monospace;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.nospace {
+  padding: 0px;
+  margin: 0px;
+  border-spacing: 0px;
+  border: 0px none #000;
+}
+
+div.configLeftBar
+{
+background-color:#000;
+color:#fff;
+margin: 0px;
+padding-top:10px;
+width: 20%;
+border-collapse: collapse;
+}
+
+ul
+{
+margin-left:20px;
+padding: 0px;
+}
+
+li a, li a:link, li a:visited, a.whiteLink
+{
+color:#fff;
+}
+
+a.configLeftBar, .configLeftBar
+{
+color:#fff;
+}
+
+a.configLeftBarHL, li a.highLight, li a.highLight:link, li a.highLight:visited
+{
+color:#6F5;
+}
+
+.tabControl
+{
+word-spacing: 2em;
+margin:0;
+padding:0;
+background-color:#000;
+}
+
+.tabControl a
+{
+border-right:1px solid #aaa;
+text-decoration:none;
+line-height:2em;
+color:#fff;
+background-color:#000;
+}
+
+.tabControl a:hover
+,.tabControl a.highLight:hover
+{
+text-decoration:none;
+color:#6f5;
+}
+
+.tabControl a.highLight
+{
+color:#6f5;
+}
+
+a.configLeftBar:hover
+{
+color:#6F5;
+}
+
+div.configDataArea
+{
+left:0px;
+top: 40px;
+margin-left:20%;
+position:absolute;
+width: 80%;
+height: auto;
+}
+
+div.outline
+{
+border: 1px solid black;
+}
+
+textarea
+{
+width:100%;
+height: 10em;
+}
+
+input
+{
+width:100%;
+}
+
+input[type="radio"]
+{
+width:1em;
+}
+
+input[type="submit"]
+{
+width:auto;
+}
+
+input.InputInt, input.InputFloat, input.Date, input.Money
+{
+width:7em;
+}
+
+div.configDataArea input[type="text"]
+{
+width:15em;
+padding-right:2em;
+}
+
+div.display input[type="text"]
+{
+width:30em;
+}
+
+div.display textarea
+{
+height: 20em;
+}
+
+<dtml-try>
+ <dtml-var cssDocEdit>
+<dtml-except>
+</dtml-try>

@@ -1,0 +1,235 @@
+html body{
+  color: #000;
+  background-color: #fff;
+  padding:0px;
+  margin:0px;
+  font-family: sans-serif
+}
+
+table.managetabs {
+  border-collapse: collapse;
+  width:100%;
+  padding:0px;
+  margin:0px;
+  border: 0px none #000;
+  border-spacing: 0px;
+}
+
+div.configLeftBar
+{
+background-color:#000;
+color:#fff;
+margin: 0px;
+padding-top:10px;
+width: 20%;
+border-collapse: collapse;
+}
+
+ul
+{
+margin-left:20px;
+padding: 0px;
+}
+
+li a, li a:link, li a:visited, a.whiteLink
+{
+color:#fff;
+}
+
+a.configLeftBar, .configLeftBar
+{
+color:#fff;
+}
+
+a.configLeftBarHL, li a.highLight, li a.highLight:link, li a.highLight:visited
+{
+color:#6F5;
+}
+
+.tabControl, .mainMenu, .pathMenu
+{
+margin:0;
+padding:0;
+background-color:#000;
+color:#fff;
+}
+
+.tabControl
+{
+word-spacing: 2em;
+}
+
+.tabControl a, .mainMenu a, .pathMenu a
+{
+text-decoration:none;
+color:#fff;
+background-color:#000;
+}
+
+.tabControl a
+{
+border-right:1px solid #aaa;
+line-height:2em;
+}
+
+.tabControl a:hover,.tabControl a.highLight:hover,
+.mainMenu a:hover,.mainMenu a.highLight:hover,
+.pathMenu a:hover,.pathMenu a.highLight:hover
+{
+text-decoration:none;
+color:#6f5;
+}
+
+.tabControl a.highLight,.mainMenu a.highLight,.pathMenu a.highLight
+{
+color:#6f5;
+}
+
+a.configLeftBar:hover
+{
+color:#6F5;
+}
+
+div.configDataArea, div.display
+{
+left:0px;
+top: 3em;
+margin-left:20%;
+position:absolute;
+width: 80%;
+height: auto;
+}
+
+div.outline
+{
+border: 1px solid black;
+}
+
+textarea
+{
+width:95%;
+height: 10em;
+}
+
+input
+{
+width:100%;
+}
+
+input[type="radio"]
+{
+width:1em;
+}
+
+input[type="submit"]
+{
+width:auto;
+}
+
+input[type="file"]
+{
+width:15em;
+}
+
+input[type="checkbox"]
+{
+width:1em;
+}
+
+input[type="text"]
+{
+width:20em;
+}
+
+p.imageSize > input
+{
+width:3em;
+}
+
+input.InputInt, input.InputFloat, input.Date, input.Money
+{
+width:7em;
+}
+
+input.TabView
+{
+width:16em;
+}
+
+input.AttributeText
+{
+width:20em;
+}
+
+input.ImageFilter
+{
+width:10em;
+}
+
+a.rightSpacer
+{
+padding-right:3em;
+}
+
+div.configDataArea input[type="text"]
+{
+width:15em;
+padding-right:2em;
+}
+
+div.display input[type="text"]
+{
+width:30em;
+}
+
+div.display textarea
+{
+height: 30em;
+}
+
+input.ObjectAdd
+{
+width:10em;
+}
+
+img
+{
+padding-left:1em;
+}
+
+table, tr, td
+{
+border: 1px solid black;
+border-collapse:collapse;
+}
+
+pre.scriptErrors
+{
+background-color: #FFDDDD;
+}
+
+pre.scriptWarnings
+{
+background-color: #FFEEDD;
+}
+
+div.jshidden
+{
+display:none;
+}
+
+p.jsmenu
+{
+line-height: 2em;
+word-spacing: 1em;
+}
+
+p.jsmenu button
+{
+display: inline;
+}
+
+div.seperateColor
+{
+background-color: #BFE1CE;
+}

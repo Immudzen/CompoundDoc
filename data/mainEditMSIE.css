@@ -1,0 +1,14 @@
+input.radio, input.checkbox
+{
+width:1em;
+}
+
+input.submit
+{
+width:auto;
+}
+
+input.File, input.Picture
+{
+width:15em;
+}

@@ -1,0 +1,2 @@
+class layout:
+    pass
