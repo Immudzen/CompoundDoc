@@ -1,1 +1,5 @@
+This product needs python 2.6 and runs on zope 2.12 or 2.13
 
+It also needs the Python Imaging Library installed
+
+Just put the CompoundDoc dir inside your zope Products dir and it works
