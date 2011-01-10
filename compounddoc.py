@@ -133,9 +133,8 @@ def manage_add_form(self, profile=None, id='', error=0, folderCreate=None, cdocN
     Please type the name you want this CompoundDoc to have:<br>
     <form name="form" action="manage_addCompoundDoc"><br>''')
     if error:
-        temp.append('''<p>The name for this object that
-            you supplied is not valid or another object
-            exists with this name already. Please
+        temp.append('''<p>The name for this object is not valid
+            or is already used. Please
             choose a name that starts with a letter and
             contains only letters, numbers, and _</p>''')
     temp.append('<input type="text" name="id" value="%s" >' % id)
