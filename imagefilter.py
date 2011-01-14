@@ -87,7 +87,7 @@ class ImageFilter(BasePicture):
     security.declarePrivate('getRemoteImage')
     def getRemoteImage(self, location=None):
         "Get the remote image"
-        location = location or self.getConfig('location')
+        location = location if location is not None else self.getConfig('location')
         return self.getRemoteObject(location, 'Picture')
 
     security.declarePrivate('PrincipiaSearchSource')
@@ -103,13 +103,17 @@ class ImageFilter(BasePicture):
     security.declareProtected('Change CompoundDoc', 'regenImages')
     def regenImages(self, pic=None):
         "regenerate the image and thumbnail"
+        #this handles the case where we can't find the remote object we should be attached to
         remote = self.getRemoteImage()
         if remote is None and self.getConfig('location'):
             self.delObjects(['image', 'thumbnail', 'fileSize'])
                 
-        pic = pic or self.getRemoteImage()
+        #this is the normal case
+        pic = pic if pic is not None else self.getRemoteImage()
         if pic is not None and pic.exists():
-                self.generateImage(pic)
+            self.generateImage(pic)
+        else:
+            self.delObjects(['image', 'thumbnail', 'fileSize'])
 
     security.declareProtected('Change CompoundDoc', 'resaveExistingImage')
     def resaveExistingImage(self):
