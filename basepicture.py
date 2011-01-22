@@ -15,6 +15,7 @@ from file import File
 #For Security control and init
 from AccessControl import ClassSecurityInfo
 import Globals
+import magicfile
 
 import utility
 
