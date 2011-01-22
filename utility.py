@@ -21,7 +21,6 @@ from PIL import ImageFile
 import PIL
 ImageFile.MAXBLOCK = 5*1024*1024 #5 megs
 
-
 def isStringLike(data):
     "check if this item is string like go this from the python cookbook reformatted it and also made it just catch known errors"
     return __builtin__.isinstance(data, basestring)
@@ -94,6 +93,16 @@ def subTrans(seq,  count):
         if idx % count == 0:
             transaction.savepoint(optimistic=True)
         yield item
+        
+def subTransDeactivate(seq, count):
+    "do a subtransaction for every count and also deactivate all objects"
+    #cacheGC = self.getPhysicalRoot()._p_jar.cacheGC
+    for idx,  item in enumerate(seq):
+        if idx % count == 0:
+            item._p_jar.cacheGC()
+            transaction.savepoint(optimistic=True)
+        yield item
+        item._p_deactivate()
 
 def log(name, short="", longMessage="", error_level=zLOG.INFO, reraise=0):
     "Log an error to a file"
@@ -342,13 +351,6 @@ def hasLocalEdit(dict):
         if not path.startswith('/'):
             return True
         
-        
-def any(seq, pred=bool):
-    "Returns True if pred(x) is True for at least one element in the iterable"
-    for elem in itertools.ifilter(pred, seq):
-        return True
-    return False
-
 def addRender(cdoc, name, header, body, footer):
     "add a render object"
     if name is not None and body:
