@@ -146,13 +146,12 @@ class DataFilter(UserObject):
             yield recordNames
         
         if allowed is None:
-            for record in records.values(start, stop):
+            for record in utility.subTransDeactivate(records.values(start, stop),  100):
                 yield [str(record.get(key, '')) for key in recordOrder]
         else:
-            for name in records.keys(start, stop):
-                if name in allowed:
-                    record = records[name]
-                    yield [str(record.get(key, '')) for key in recordOrder]
+            recordsGen = (records[name] for name in records.keys(start, stop) if name in allowed)
+            for record in utility.subTransDeactivate(recordsGen,  100):
+                yield [str(record.get(key, '')) for key in recordOrder]
 
     security.declarePrivate('classUpgrader')
     def classUpgrader(self):
