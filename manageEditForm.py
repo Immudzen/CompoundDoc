@@ -91,7 +91,7 @@ class ManageEditForm(Persistence.Persistent,Acquisition.Implicit):
         "Custom Object for Editing Objects to allow url rewriting"
         cdoc = self.getCompoundDoc()
         
-        if self.REQUEST.form and not 'CompoundDocProcessed' in self.REQUEST.other and utility.any(key.startswith('/') for key in self.REQUEST.form):
+        if self.REQUEST.form and not 'CompoundDocProcessed' in self.REQUEST.other and any(key.startswith('/') for key in self.REQUEST.form):
             cdoc.manage_edit()
             url = self.REQUEST.other.get('redirectTo', None)
             if url is not None:
