@@ -1163,9 +1163,9 @@ class CompoundDoc(Base, OFS.History.Historical, CatalogAware, UserObject):
                 if hasattr(cdoc, 'upgradeAll'):
                     cdoc.upgradeAll()
                     catalog.catalog_object(cdoc)
+                    cdoc._p_deactivate()
                 else:
-                    removeRecordFromCatalog(catalog, record)
-                cdoc._p_deactivate()
+                    removeRecordFromCatalog(catalog, record)                
                 self._p_jar.cacheGC()
             except (zExceptions.Unauthorized, zExceptions.NotFound, KeyError, IndexError):
                 pass
