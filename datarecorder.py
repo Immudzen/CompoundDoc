@@ -25,6 +25,10 @@ from htmldatafilter import HTMLDataFilter
 from csvdatafilter import CSVDataFilter
 from seperatordatafilter import SeperatorDataFilter
 
+import BTrees.Length
+import persistent.mapping
+from Acquisition import Implicit
+
 class Record(SimpleItem):
     
     security = ClassSecurityInfo()
@@ -62,7 +66,9 @@ class DataRecorder(base.Base):
     security = ClassSecurityInfo()
     fieldList = None
     records = None
+    recordsLength = None
     archive = None
+    archiveLength = None
     allowArchive = 1
     allowClear = 1
     startTime = None
@@ -236,13 +242,9 @@ class DataRecorder(base.Base):
         format = """<p>Currently there are %s records and %s in archive</p>
         <div>%s%s%s</div><p>Search Start Time:%s</p><p>Search Stop Time:%s</p>
         <p>%s</p>"""
-        lenArchive = 0
-        if self.archive is not None:
-            lenArchive = len(self.archive)
-            
-        lenRecords = 0
-        if self.records is not None:
-            lenRecords = len(self.records)
+        
+        lenArchive = self.archiveLength() if self.archiveLength is not None else 0
+        lenRecords = self.recordsLength() if self.recordsLength is not None else 0
 
         clear = ''
         archive = ''
@@ -281,20 +283,32 @@ class DataRecorder(base.Base):
         if form.pop('addRecordsArchive',None):
             self.addRecordsToCatalogArchive()
         elif  self.getConfig('allowArchive') and form.pop('archive',None):
-            if self.records is not None:
-                self.addMainRecordsToCatalogArchive()
-
-                if self.archive is None:
-                    self.setObject('archive', BTrees.OOBTree.OOBTree())
-                self.archive.update(self.records)
+            self.addRecordsToArchive()
+                        
         elif  self.getConfig('allowArchive') and form.pop('archiveClear',None):
-            self.addMainRecordsToCatalogArchive()
-            if self.records is not None:
-                if self.archive is None:
-                    self.setObject('archive', BTrees.OOBTree.OOBTree())
+            self.addRecordsToArchive()
+            self.clearRecords()
 
-                self.archive.update(self.records)
-                self.clearRecords()
+    security.declarePrivate('addRecordsToArchive')
+    def addRecordsToArchive(self):
+        "add the current records to the archive"
+        if self.records is not None:
+            self.addMainRecordsToCatalogArchive()
+
+            if self.archive is None:
+                self.setObject('archive', BTrees.OOBTree.OOBTree())
+            if self.archiveLength is None:
+                self.setObject('archiveLength', BTrees.Length.Length())
+            
+            #have to do this as a set of seperation operations 
+            #so I know which are actually being copied over to change the length
+            archive = self.archive
+            change = self.archiveLength.change
+            for key,value in self.records.items():
+                if key not in archive:
+                    archive[key] = persistent.mapping.PersistentMapping(value)
+                    change(1)
+
 
     security.declarePrivate('clearRecords')
     def clearRecords(self):
@@ -308,6 +322,7 @@ class DataRecorder(base.Base):
                     path = '/'.join([docPath, repr(key)])
                     uncatalog_object(path)
             self.setObject('records', None)
+            self.setObject('recordsLength', None)
             
     security.declarePrivate('addRecordsToCatalog')
     def addRecordsToCatalog(self):
@@ -376,8 +391,11 @@ class DataRecorder(base.Base):
                 entryTime = time.time()
                 if self.records is None:
                     self.setObject('records' ,BTrees.OOBTree.OOBTree())
+                if self.recordsLength is None:
+                    self.setObject('recordsLength' ,BTrees.Length.Length())
 
-                self.records[entryTime] = temp
+                self.records[entryTime] = persistent.mapping.PersistentMapping(temp)
+                self.recordsLength.change(1)
                 catalog = self.getCatalog()
                 if catalog is not None:
                     doc = Record(name=repr(entryTime), data=temp, script=self.getRecordScript(), parent=self).__of__(self)
@@ -394,12 +412,14 @@ class DataRecorder(base.Base):
             records = self.archive
         else:
             records = self.records
-
+            
         if records is not None:
-            if allowed is None:
-                return records.values(start, stop)
+            if allowed is None:                
+                return [dict(record) for record in utility.subTransDeactivate(records.values(start, stop),  100)]
             else:
-                return [records[key] for key in self.allowedKeys(records, start, stop, allowed)]
+                recordsGen = (records[key] for key in self.allowedKeys(records, start, stop, allowed))
+                return [dict(record) for record in utility.subTransDeactivate(recordsGen,  100)]
+                
         return []
 
     security.declareProtected('Python Record Modification', 'addDataToRecords')
@@ -417,13 +437,13 @@ class DataRecorder(base.Base):
                 for key,value in utility.subTrans(records.items(start, stop),  100):
                     newData = script(value)
                     newData.update(value)
-                    records[key] = newData
+                    records[key] = persistent.mapping.PersistentMapping(newData)
             else:
                 for key in utility.subTrans(self.allowedKeys(records, start, stop, allowed),  100):
                     data = records[key]
                     newData = script(data)
                     newData.update(data)
-                    records[key] = newData
+                    records[key] = persistent.mapping.PersistentMapping(newData)
         return []
 
     security.declarePrivate("getAllowedRecords")
@@ -462,6 +482,8 @@ class DataRecorder(base.Base):
         self.changeListDictDataRecorderArchive()
         self.removeNotUsed()
         self.removeNotNeededFilters()
+        self.createBTreeLength()
+        self.convertDictToPersistentMapping()
 
     security.declarePrivate('changeListDictDataRecorder')
     def changeListDictDataRecorder(self):
@@ -510,6 +532,32 @@ class DataRecorder(base.Base):
             toRemove.append('SeperatorDataFilter')
         self.delObjects(toRemove)
     removeNotNeededFilters = utility.upgradeLimit(removeNotNeededFilters, 163)
+    
+    security.declarePrivate('createBTreeLength')
+    def createBTreeLength(self):
+        "remove Filters that are not being used"
+        if self.records is not None:
+            length = BTrees.Length.Length()
+            length.set(len(self.records))
+            self.setObject('recordsLength', length)
+            
+        if self.archive is not None:
+            length = BTrees.Length.Length()
+            length.set(len(self.archive))
+            self.setObject('archiveLength', length)
+    createBTreeLength = utility.upgradeLimit(createBTreeLength, 164)
+
+    security.declarePrivate('convertDictToPersistentMapping')
+    def convertDictToPersistentMapping(self):
+        "convert the dictionaries we have stored to persistent mapping so they can be deactivated"
+        if self.records is not None:
+            for key,value in utility.subTrans(self.records.items(), 500):
+                self.records[key] = persistent.mapping.PersistentMapping(value)
+        
+        if self.archive is not None:
+            for key,value in utility.subTrans(self.archive.items(), 500):
+                self.archive[key] = persistent.mapping.PersistentMapping(value)
+    convertDictToPersistentMapping = utility.upgradeLimit(convertDictToPersistentMapping, 167)
 
 Globals.InitializeClass(DataRecorder)
 import register
