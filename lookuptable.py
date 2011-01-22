@@ -18,6 +18,10 @@ import Globals
 
 from BTrees.OOBTree import OOBTree
 
+import BTrees.Length
+
+import utility
+
 
 class LookupTable(base.Base):
     "LookupTable class"
@@ -25,6 +29,7 @@ class LookupTable(base.Base):
     meta_type = "LookupTable"
     security = ClassSecurityInfo()
     records = None
+    recordsLength = None
 
     drawDict = base.Base.drawDict.copy()
     drawDict['drawTable'] = 'drawTable'
@@ -35,7 +40,8 @@ class LookupTable(base.Base):
         format = "<p>Currently there are %s records</p><div>%s</div>"
         if self.records is None:
             self.records = OOBTree()
-        return format % (len(self.records), self.create_button('clear', "Clear"))
+        lenRecords = self.recordsLength() if self.recordsLength is not None else 0
+        return format % (lenRecords, self.create_button('clear', "Clear"))
 
     security.declarePrivate('processRecorderChanges')
     def processRecorderChanges(self, form):
@@ -66,9 +72,14 @@ class LookupTable(base.Base):
 
     security.declareProtected('Python Record Modification', 'insert')
     def insert(self, key, value):
-        "this this key and value into the OOBTree"
+        "modify this key and value into the OOBTree"
         if self.records is None:
             self.records = OOBTree()
+        if self.recordsLength is None:
+            self.setObject('recordsLength' ,BTrees.Length.Length())
+        
+        if key not in self.records:
+            self.recordsLength.change(1)
         self.records.insert(key,value)
 
     security.declareProtected('Python Record Modification', 'add')
@@ -76,6 +87,11 @@ class LookupTable(base.Base):
         "this this key and value into the OOBTree"
         if self.records is None:
             self.records = OOBTree()
+        if self.recordsLength is None:
+            self.setObject('recordsLength' ,BTrees.Length.Length())
+        
+        if key not in self.records:
+            self.recordsLength.change(1)
         self.records[key] = value
 
     security.declareProtected('Python Record Access', 'items')
@@ -97,7 +113,15 @@ class LookupTable(base.Base):
         "update our OOBTree with the data in collection"
         if self.records is None:
             self.records = OOBTree()
-        self.records.update(collection)
+        if self.recordsLength is None:
+            self.setObject('recordsLength' ,BTrees.Length.Length())
+        
+        records = self.records
+        change = self.recordsLength.change
+        for key,value in collection.items():
+            if key not in records:
+                change(1)
+            records[key] = value
 
     security.declareProtected('Python Record Access', 'keys')
     def keys(self, min=None, max=None):
@@ -111,12 +135,14 @@ class LookupTable(base.Base):
         "delete this key from the OOBTree"
         if self.records is not None:
             del self.records[key]
+            self.recordsLength.change(-1)
 
     security.declareProtected('Python Record Modification', 'remove')
     def remove(self, key):
         "delete this key from the OOBTree"
         if self.records is not None:
             del self.records[key]
+            self.recordsLength.change(-1)
 
     security.declareProtected('Python Record Modification', '__setitem__')
     def __setitem__(self, key, value):
@@ -149,13 +175,27 @@ class LookupTable(base.Base):
     security.declareProtected('Python Record Modification', 'clear')
     def clear(self):
         "clear the OOBTree"
-        self.records = None
-
+        self.setObject('records', None)
+        self.setObject('recordsLength', None)
         
     security.declarePrivate("PrincipiaSearchSource")
     def PrincipiaSearchSource(self):
         "This is the basic search function"
         return ''
+      
+    security.declarePrivate('classUpgrader')
+    def classUpgrader(self):
+        "upgrade this class"
+        self.createBTreeLength() 
+      
+    security.declarePrivate('createBTreeLength')
+    def createBTreeLength(self):
+        "remove Filters that are not being used"
+        if self.records is not None:
+            length = BTrees.Length.Length()
+            length.set(len(self.records))
+            self.setObject('recordsLength', length)
+    createBTreeLength = utility.upgradeLimit(createBTreeLength, 165)
 
 
 Globals.InitializeClass(LookupTable)
