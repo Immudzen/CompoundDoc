@@ -39,7 +39,7 @@ class Base(baseobject.BaseObject,
   SimpleItem):
     "Abstract Base"
 
-    classVersion = 163  #run upgrader scripts 160
+    classVersion = 167  #run upgrader scripts 160
     classUpdateVersion = 122  #add attributes
     overwrite = 0
     updateAlways = 0
@@ -109,7 +109,7 @@ class Base(baseobject.BaseObject,
         "Custom tabs_path_default for creating the white on black interface"
         #All forms items that compounddoc has to process consists of absolute urls to the db
         #so if there are no / in the form keys then there is nothing to process
-        if self.REQUEST.form and not 'CompoundDocProcessed' in self.REQUEST.other and utility.any(key.startswith('/') for key in self.REQUEST.form):
+        if self.REQUEST.form and not 'CompoundDocProcessed' in self.REQUEST.other and any(key.startswith('/') for key in self.REQUEST.form):
             self.manage_edit()
             url = self.REQUEST.other.get('redirectTo', None)
             if url is not None:
@@ -341,11 +341,11 @@ class Base(baseobject.BaseObject,
         "Get the remote image"
         if path:
             item = self.restrictedTraverse(path, default=None)
-            if not item:
+            if item is None:
                 item = self.getCompoundDoc().restrictedTraverse(path, default=None)
-            if not item:
+            if item is None:
                 item = self.getCompoundDocContainer().restrictedTraverse(path, default=None)
-            if item and item.meta_type == meta_type:
+            if item is not None and item.meta_type == meta_type:
                 return item
 
     security.declarePrivate('restrictedUserObject')
