@@ -480,7 +480,7 @@ class CompoundDoc(Base, OFS.History.Historical, CatalogAware, UserObject):
         if hasattr(self, 'REQUEST'):
             #All forms items that compounddoc has to process consists of absolute urls to the db
             #so if there are no / in the form keys then there is nothing to process
-            if self.REQUEST.form and not 'CompoundDocProcessed' in self.REQUEST.other and utility.any(key.startswith('/') for key in self.REQUEST.form):
+            if self.REQUEST.form and not 'CompoundDocProcessed' in self.REQUEST.other and any(key.startswith('/') for key in self.REQUEST.form):
                 self.manage_edit()
                 url = self.REQUEST.other.get('redirectTo', None)
                 if url is not None:
@@ -506,7 +506,7 @@ class CompoundDoc(Base, OFS.History.Historical, CatalogAware, UserObject):
         "Basic View Alone"
         #All forms items that compounddoc has to process consists of absolute urls to the db
         #so if there are no / in the form keys then there is nothing to process
-        if self.REQUEST.form and not 'CompoundDocProcessed' in self.REQUEST.other and utility.any(key.startswith('/') for key in self.REQUEST.form):
+        if self.REQUEST.form and not 'CompoundDocProcessed' in self.REQUEST.other and any(key.startswith('/') for key in self.REQUEST.form):
             self.manage_edit()
             url = self.REQUEST.other.get('redirectTo', None)
             if url is not None:
