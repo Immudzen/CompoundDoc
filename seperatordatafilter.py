@@ -14,7 +14,6 @@ class SeperatorDataFilter(datafilter.DataFilter):
     meta_type = "SeperatorDataFilter"
     security = ClassSecurityInfo()
     seperator = ','
-    alternate = ':'
     security.declareObjectProtected('View management screens')
 
     security.declarePrivate('customEdit')
@@ -24,7 +23,6 @@ class SeperatorDataFilter(datafilter.DataFilter):
         #format = '<label>%(name)s %(form)s</label><br>\n'
         format = '<p>%(name)s %(form)s</p>\n'
         temp.append(format  % {'name':'Seperator', 'form':self.input_text('seperator', self.seperator)})
-        temp.append(format  % {'name':'Alternate', 'form':self.input_text('alternate', self.alternate)})
         return ''.join(temp)
 
     security.declareProtected('View', 'view')
@@ -100,15 +98,12 @@ class SeperatorDataFilter(datafilter.DataFilter):
             order = self.getFieldOrder()
             
         records = self.getDataRecords(order, archive=archive, start=start, stop=stop, header=header, query=query, merge=merge)
-        temp = StringIO.StringIO()
-        writer = csv.writer(temp, lineterminator=eol, delimiter=sep)
+        writer = csv.writer(self.REQUEST.RESPONSE, lineterminator=eol, delimiter=sep)
         writer.writerows(records)
-        output = temp.getvalue()
-        temp.close()
-        if output:
-            return output
-        else:
-            return 'No Drawable Data Found' + eol
+
+        if not self.REQUEST.RESPONSE._wrote:
+            self.REQUEST.RESPONSE.write('No Drawable Data Found' + eol)
+        self.REQUEST.RESPONSE.close()
 
 Globals.InitializeClass(SeperatorDataFilter)
 import register
