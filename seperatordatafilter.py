@@ -103,7 +103,6 @@ class SeperatorDataFilter(datafilter.DataFilter):
 
         if not self.REQUEST.RESPONSE._wrote:
             self.REQUEST.RESPONSE.write('No Drawable Data Found' + eol)
-        self.REQUEST.RESPONSE.close()
 
 Globals.InitializeClass(SeperatorDataFilter)
 import register
