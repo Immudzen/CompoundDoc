@@ -146,11 +146,11 @@ class DataFilter(UserObject):
             yield recordNames
         
         if allowed is None:
-            for record in utility.subTransDeactivate(records.values(start, stop),  100):
+            for record in utility.subTransDeactivate(records.values(start, stop),  100, self.getPhysicalRoot()._p_jar.cacheGC):
                 yield [str(record.get(key, '')) for key in recordOrder]
         else:
             recordsGen = (records[name] for name in records.keys(start, stop) if name in allowed)
-            for record in utility.subTransDeactivate(recordsGen,  100):
+            for record in utility.subTransDeactivate(recordsGen,  100, self.getPhysicalRoot()._p_jar.cacheGC):
                 yield [str(record.get(key, '')) for key in recordOrder]
 
     security.declarePrivate('classUpgrader')
