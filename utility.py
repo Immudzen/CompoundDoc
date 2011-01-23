@@ -94,12 +94,12 @@ def subTrans(seq,  count):
             transaction.savepoint(optimistic=True)
         yield item
         
-def subTransDeactivate(seq, count):
+def subTransDeactivate(seq, count, cacheGC=None):
     "do a subtransaction for every count and also deactivate all objects"
-    #cacheGC = self.getPhysicalRoot()._p_jar.cacheGC
+    cacheGC = cacheGC if cacheGC is not None else lambda :None
     for idx,  item in enumerate(seq):
         if idx % count == 0:
-            item._p_jar.cacheGC()
+            cacheGC()
             transaction.savepoint(optimistic=True)
         yield item
         item._p_deactivate()
