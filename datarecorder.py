@@ -237,7 +237,7 @@ class DataRecorder(base.Base):
             return item
 
     security.declareProtected('View management screens', "edit")
-    def edit(self, dateFormat='dropDownDate', *args, **kw):
+    def edit(self, dateFormat='jQueryUIDate', *args, **kw):
         "Inline edit short object"
         format = """<p>Currently there are %s records and %s in archive</p>
         <div>%s%s%s</div><p>Search Start Time:%s</p><p>Search Stop Time:%s</p>
@@ -261,8 +261,33 @@ class DataRecorder(base.Base):
         if self.stopTime is None:
             self.addRegisteredObject('stopTime', 'Date')
             self.stopTime.clearDateTime()
+        
+        yearsBefore, yearsAfter = self.getYearsBeforeAndAfter()
+        self.log(yearsBefore, yearsAfter)
+        
         return format % (lenRecords, lenArchive, archiveClear,
-          archive, clear, self.startTime(mode='edit', format=dateFormat), self.stopTime(mode='edit', format=dateFormat), self.submitChanges())
+          archive, clear, self.startTime(mode='edit', format=dateFormat, yearsBefore=yearsBefore, yearsAfter=yearsAfter), 
+          self.stopTime(mode='edit', format=dateFormat, yearsBefore=yearsBefore, yearsAfter=yearsAfter), self.submitChanges())
+
+    def getYearsBeforeAndAfter(self):
+        "find the number of years on either side of the entries we have in records and archives from now"
+        minRecord = None
+        maxRecord = None
+        minArchive = None
+        maxArchive = None
+        
+        if self.records is not None:
+            minRecord = DateTime.DateTime(self.records.minKey())
+            maxRecord = DateTime.DateTime(self.records.maxKey())
+            
+        if self.archive is not None:
+            minArchive = DateTime.DateTime(self.archive.minKey())
+            maxArchive = DateTime.DateTime(self.archive.maxKey())
+        nowYear = DateTime.DateTime().year()
+        
+        minYear = max((nowYear - min(minRecord.year(), minArchive.year())),1)
+        maxYear = max((max(maxRecord.year(), maxArchive.year()) - nowYear),1)
+        return minYear, maxYear
 
     security.declarePrivate('configAddition')
     def configAddition(self):
