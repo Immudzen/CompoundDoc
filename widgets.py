@@ -39,9 +39,9 @@ class Widgets:
         return self.input_line(name, 'float', str(var), containers)
 
     security.declarePrivate('input_date')
-    def input_date(self, name, var="", containers=None):
+    def input_date(self, name, var="", containers=None, pageId=None):
         "Create a Date input field"
-        return self.input_line(name, 'string', var, containers)
+        return self.input_line(name, 'string', var, containers, pageId=pageId)
 
     security.declarePrivate('input_tokens')
     def input_tokens(self, name, var=None, containers=None):
@@ -52,14 +52,15 @@ class Widgets:
         return self.input_line(name, 'tokens', var, containers)
 
     security.declarePrivate('input_line')
-    def input_line(self, name, type, var="", containers=None, formType="text",  cssClass=''):
+    def input_line(self, name, type, var="", containers=None, formType="text",  cssClass='', pageId=None):
         "Input a single line of type"
-        format = '<input type="%s" name="%s" value="%s" class="%s %s">'
+        pageId = 'id="%s"' % pageId if pageId is not None else ''
+        format = '<input type="%s" name="%s" value="%s" class="%s %s" %s>'
         formName = self.formName(name, type, containers)
         meta_type = getattr(self, 'meta_type', '')
         cleanData = self.convertForEdit(var)
         classes = ' '.join(self.getClasses(name, meta_type))
-        return format % (formType, formName, cleanData, classes,  cssClass)
+        return format % (formType, formName, cleanData, classes,  cssClass, pageId)
 
     security.declarePrivate('option_select')
     def option_select(self, seq, name, selected=None, multiple=None, size=None, containers=None, dataType='string', events = ''):
