@@ -415,10 +415,10 @@ class DataRecorder(base.Base):
             
         if records is not None:
             if allowed is None:                
-                return [dict(record) for record in utility.subTransDeactivate(records.values(start, stop),  100)]
+                return [dict(record) for record in utility.subTransDeactivate(records.values(start, stop),  100, self.getPhysicalRoot()._p_jar.cacheGC)]
             else:
                 recordsGen = (records[key] for key in self.allowedKeys(records, start, stop, allowed))
-                return [dict(record) for record in utility.subTransDeactivate(recordsGen,  100)]
+                return [dict(record) for record in utility.subTransDeactivate(recordsGen,  100, self.getPhysicalRoot()._p_jar.cacheGC)]
                 
         return []
 
