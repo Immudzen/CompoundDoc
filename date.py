@@ -25,6 +25,7 @@ class Date(UserObject):
     allowedFormats['dropDownDate'] = {'example':'1997 March 1 (DropDown)', 'where':'Local'}
     allowedFormats['dropDownTimeAMPM'] = {'example':'1997 March 1 1:45 pm (DropDown)', 'where':'Local'}
     allowedFormats['dropDownTime24H'] = {'example':'1997 March 1 13:45 (DropDown)', 'where':'Local'}
+    allowedFormats['jQueryUIDate'] = {'example':'jquery UI Date', 'where':'Local'}
     selectedFormat = ''
     data = ''
 
@@ -69,7 +70,20 @@ class Date(UserObject):
         if date:
             return date.parts()
         return ('', 0, 0, 0, 0, 0, '')
-    
+
+    def jQueryUIDate(self, yearOffSetBefore, yearOffSetAfter):
+        "jQuery UI date picker"
+        pageId = '_'.join(self.getPhysicalPath())
+        try:
+            date = self.Date().Date()
+        except AttributeError:
+            date = ''
+        
+        temp = ['''<script>$(function() {$( "#%s" ).datepicker({ dateFormat:'yy/mm/dd', maxDate:'+%sy',''' % (pageId, yearOffSetAfter)]
+        temp.append('''minDate:'-%sy', gotoCurrent: true, changeMonth: true, changeYear: true });});</script>''' % yearOffSetBefore)
+        temp.append(self.input_date('data', date, pageId=pageId))
+        return ''.join(temp)
+
     def dropDownDate(self, yearOffSetBefore, yearOffSetAfter):
         "generate a drop down format for this date format"
         year , month, day = self.getDateParts()[:3]
@@ -213,8 +227,8 @@ class Date(UserObject):
             if date and where == 'DateTime':
                 date = getattr(date, selectedFormat)()
             elif where == 'Local':
-                yearOffSetBefore = yearOffSetBefore or self.getConfig('yearOffSetBefore')
-                yearOffSetAfter = yearOffSetAfter or self.getConfig('yearOffSetAfter')
+                yearOffSetBefore = yearOffSetBefore if yearOffSetBefore is not None else self.getConfig('yearOffSetBefore')
+                yearOffSetAfter = yearOffSetAfter if yearOffSetAfter is not None else self.getConfig('yearOffSetAfter')
                 date = getattr(self, selectedFormat)(yearOffSetBefore, yearOffSetAfter)
         elif date is None:
             date = ''
