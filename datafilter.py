@@ -104,7 +104,7 @@ class DataFilter(UserObject):
             return [(name, fieldMap[name]) for i,name in order if name in visible]
         return []
             
-    def getDataRecords(self, order, archive=None, start=None, stop=None, header=None, query=None, merge=None):
+    def getDataRecords(self, order, archive=None, start=None, stop=None, header=None, query=None, merge=None, sliceStart=None, sliceStop=None, keys=None):
         "get the records in this data recorder that match these constraints"
         if not order:
             return
@@ -115,11 +115,11 @@ class DataFilter(UserObject):
                 records.update(self.records)
             if self.archive is not None:
                 records.update(self.archive)
-        elif archive is None:
-            records = self.records
-        else:
+        elif archive:
             records = self.archive
-        
+        else:
+            records = self.records
+
         if records is None:
             return
         
@@ -144,14 +144,22 @@ class DataFilter(UserObject):
             
         if header:
             yield recordNames
-        
+
+        recordsGen = None
         if allowed is None:
-            for record in utility.subTransDeactivate(records.values(start, stop),  100, self.getPhysicalRoot()._p_jar.cacheGC):
-                yield [str(record.get(key, '')) for key in recordOrder]
+            if sliceStart is not None and sliceStop is not None:
+                recordsGen = records.items(start, stop)[sliceStart:sliceStop]
+            else:
+                recordsGen = records.items(start, stop)
         else:
-            recordsGen = (records[name] for name in records.keys(start, stop) if name in allowed)
-            for record in utility.subTransDeactivate(recordsGen,  100, self.getPhysicalRoot()._p_jar.cacheGC):
-                yield [str(record.get(key, '')) for key in recordOrder]
+            recordsGen = ( (name,value) for name, value in records.items(start, stop)[sliceStart:sliceStop] if name in allowed)
+        
+        if recordsGen is not None:
+            for key,record in utility.subTransDeactivateKeyValue(recordsGen,  100, self.getPhysicalRoot()._p_jar.cacheGC):
+                if keys:
+                    yield key,[str(record.get(key, '')) for key in recordOrder]
+                else:
+                    yield [str(record.get(key, '')) for key in recordOrder]
 
     security.declarePrivate('classUpgrader')
     def classUpgrader(self):
