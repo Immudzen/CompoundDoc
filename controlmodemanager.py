@@ -60,7 +60,8 @@ class ControlModeManager(BaseControlManager):
             this.href = url;
             })
             },
-            load: function(event, ui) {$("a[rel^='lightbox']").slimbox();
+            load: function(event, ui) {$("a[rel^='lightbox']").colorbox({maxWidth:'85%%', maxHeight:'85%%', photo:true});
+            $("a[rel^='lightbox_html']").colorbox({maxWidth:'85%%', maxHeight:'85%%'});
             $.fn.jPicker.defaults.images.clientPath='http://c2219172.cdn.cloudfiles.rackspacecloud.com/images/';
             $('.color_picker').jPicker();}
             } );
