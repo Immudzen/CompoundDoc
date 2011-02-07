@@ -179,7 +179,7 @@ class ImageFilter(BasePicture):
             decode['tags'] = tags
 
             inc = IncrementalRender(decode)
-            imagesrc = '<img src="%(url)s" width="%(width)s" height="%(height)s" alt="%(alt)s" %(tags)s >' % inc
+            imagesrc = '<img src="%(url)s" width="%(width)s" height="%(height)s" alt="%(alt)s" %(tags)s %(additionalAttributes)s >' % inc
             if url and (not utility.dtmlFree(url) or '://' in url):
                 #the replace part is needed because the url might have % in them for spaces etc and it needs to be escaped
                 imagesrc = '<a href="%s">%s</a>' % (url.replace('%', '%%'),imagesrc)
@@ -212,7 +212,7 @@ class ImageFilter(BasePicture):
         self.setFileSize()
 
     security.declareProtected('View', 'view')
-    def view(self, urlCallable=None, parent=None):
+    def view(self, urlCallable=None, parent=None, additionalAttributes=''):
         "Render page"
         remote = self.getRemoteImage()
         parent = parent or remote
@@ -224,7 +224,7 @@ class ImageFilter(BasePicture):
             imagesrc = self.imagesrc
             if not imagesrc:
                 imagesrc = self.updateImageSrcCache()
-            decode = {'url': self.image.absolute_url_path()}
+            decode = {'url': self.image.absolute_url_path(), 'additionalAttributes':additionalAttributes}
             image = self.imagesrc % decode
 
             href = None
@@ -254,6 +254,7 @@ class ImageFilter(BasePicture):
     def classUpgrader(self):
         "upgrade this class"
         self.percentEscape()
+        self.addAdditionalVarsSupport()
 
     security.declarePrivate('percentEscape')
     def percentEscape(self):
