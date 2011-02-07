@@ -136,6 +136,12 @@ class BasePicture(File):
             return '<a href="%(fullUrl)s" rel="lightbox"><img src="%(url)s" width="%(width)s" height="%(height)s" alt="%(alt)s"></a>' % decode
         return ""
 
+    security.declarePrivate('addAdditionalVarsSupport')
+    def addAdditionalVarsSupport(self):
+        "escape any % that might be in the url so that subs work right"
+        self.updateImageSrcCache()
+    addAdditionalVarsSupport = utility.upgradeLimit(addAdditionalVarsSupport, 168)
+
 Globals.InitializeClass(BasePicture)
 import register
 register.registerClass(BasePicture)
