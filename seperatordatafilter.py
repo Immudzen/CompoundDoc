@@ -26,7 +26,7 @@ class SeperatorDataFilter(datafilter.DataFilter):
         return ''.join(temp)
 
     security.declareProtected('View', 'view')
-    def view(self, header=1):
+    def view(self, header=1, tableHeader=0):
         "Give links to the different formats for csv"
         seq = []
         format = '''<tr><td>%(os)s File format version</td>
@@ -35,6 +35,8 @@ class SeperatorDataFilter(datafilter.DataFilter):
         query = urllib.urlencode({'header:int':header})
         url = self.absolute_url_path()
         seq.append('<table>')
+        if tableHeader:
+            seq.append('<tr><th>Operating System</th><th>Inbox</th><th>Archive</th></tr>')
         seq.append(format % {'os':'Unix', 'record':'unix', 'archive':'unixArchive', 'query':query, 'url':url})
         seq.append(format % {'os':'Windows', 'record':'windows', 'archive':'windowsArchive', 'query':query, 'url':url})
         seq.append(format % {'os':'Mac', 'record':'mac', 'archive':'macArchive', 'query':query, 'url':url})
