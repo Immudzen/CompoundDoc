@@ -28,6 +28,8 @@ from seperatordatafilter import SeperatorDataFilter
 import BTrees.Length
 import persistent.mapping
 from Acquisition import Implicit
+import json
+import cgi
 
 class Record(SimpleItem):
     
@@ -54,7 +56,7 @@ class Record(SimpleItem):
         temp.append(format % ('ID', repr(self.id))) 
         for key, value in self.__dict__.iteritems():
             if key != "id":
-                temp.append(format % (key, repr(value)))
+                temp.append(format % (key, cgi.escape(repr(value),1)))
         return ''.join(temp)
             
 Globals.InitializeClass(Record)
@@ -98,6 +100,7 @@ class DataRecorder(base.Base):
     drawDict['showRecords'] = 'showRecords'
     drawDict['showArchive'] = 'showArchive'
     drawDict['showFieldList'] = 'showFieldList'
+    drawDict['AdvancedEdit'] = 'advancedEdit'
     
     updateReplaceList = ('catalogPath', 'catalogArchivePath', 'orderHeaderPath', 'allowArchive', 'allowClear')
     
@@ -240,7 +243,7 @@ class DataRecorder(base.Base):
     def edit(self, dateFormat='jQueryUIDate', *args, **kw):
         "Inline edit short object"
         format = """<p>Currently there are %s records and %s in archive</p>
-        <div>%s%s%s</div><p>Search Start Time:%s</p><p>Search Stop Time:%s</p>
+        <div>%s%s%s</div><p>Find Items Between:%s and %s</p>
         <p>%s</p>"""
         
         lenArchive = self.archiveLength() if self.archiveLength is not None else 0
@@ -263,12 +266,140 @@ class DataRecorder(base.Base):
             self.stopTime.clearDateTime()
         
         yearsBefore, yearsAfter = self.getYearsBeforeAndAfter()
-        self.log(yearsBefore, yearsAfter)
         
         return format % (lenRecords, lenArchive, archiveClear,
           archive, clear, self.startTime(mode='edit', format=dateFormat, yearsBefore=yearsBefore, yearsAfter=yearsAfter), 
           self.stopTime(mode='edit', format=dateFormat, yearsBefore=yearsBefore, yearsAfter=yearsAfter), self.submitChanges())
 
+    security.declareProtected('View management screens', "advancedEdit")
+    def advancedEdit(self, *args, **kw):
+        "a better more advanced editing control"
+        temp = []
+        temp.append('''<script type="text/javascript">
+            $(function() {
+            $("#dataRecorderTab").tabs({ cache: true});
+            });
+            </script>
+            ''')
+        temp.append('<div id="dataRecorderTab"><ul>')
+        
+        url = self.absolute_url_path()
+        temp.append('<li><a href="%s/%s">%s</a></li>' % (url,  'editStartTable',  'Start'))
+        temp.append('<li><a href="%s/%s">%s</a></li>' % (url,  'editRecordsTable',  'Inbox'))
+        temp.append('<li><a href="%s/%s">%s</a></li>' % (url,  'editArchivesTable',  'Archives'))
+        temp.append('<li><a href="%s/%s">%s</a></li>' % (url,  'editDownloadTable',  'Download'))
+        temp.append('</ul></div>')
+        return ''.join(temp)
+
+    def editStartTable(self):
+        "edit interface for the start tab of the new editing interface"
+        return self.edit()
+        
+    def editDownloadTable(self):
+        "create the download table"
+        return '''<div>
+            <h2>Data Access</h2><br />
+            Your data is available three ways:<br />
+            (1) Left click on "unix", "windows" or "mac" to view as a 'comma separated values' (CSV) file.<br />
+            (2) Right click on"unix", "windows" or "mac" to download, then choose "Save Target as..." and name the file: [filename].CSV<br />
+            so you can "open" it in a spreadsheet or "import" it into a database.<br />
+            %s</div>
+            ''' % self.CSVDataFilter(mode='view', tableHeader=1)
+
+    security.declareProtected('View management screens', "editRecordsTable")
+    def editRecordsTable(self):
+        "edit records table"
+        return self.editTable('recordsTable', 'recordsTable')
+
+    security.declareProtected('View management screens', "editArchivesTable")
+    def editArchivesTable(self):
+        "edit the archives table"
+        return self.editTable('archiveTable', 'archiveTable')
+
+    security.declarePrivate('editTable')
+    def editTable(self, tableId, tableDataFunc):
+        "create the edit interface for a DataTable"
+        headers = []
+        for name,displayName in self.HTMLDataFilter.getFieldOrder():
+            headers.append('<th>%s</th>' % displayName)
+        disableSort = ','.join((len(headers)-1)*['{ "bSortable": false }'])
+        temp = []
+        temp.append('''<script type="text/javascript" charset="utf-8"> 
+            $(document).ready(function() {
+                $('#%s').dataTable( {
+                    "bProcessing": true,
+                    "sDom": '<"top"iflp<"clear">>rt<"bottom"iflp<"clear">>',
+                    "bServerSide": true,
+                    "bJQueryUI": true,
+                    "bFilter": false,"aoColumns": [
+                        { "bSortable": true, "sType": "Date" },
+                        %s
+                    ],
+                    "sAjaxSource": "%s/%s"
+                } );
+            } );
+        </script>''' % (tableId, disableSort ,self.absolute_url_path(), tableDataFunc))
+        temp.append('''<style>
+        #%s p {overflow-y: hidden; height:4em;}
+        </style>
+        ''' % tableId)
+        temp.append('''<table cellpadding="0" cellspacing="0" border="0" class="display" id="%s"><thead><tr>''' % tableId)
+        temp.extend(headers)
+        temp.append('''</tr></thead><tbody><tr> 
+            <td colspan="%s" class="dataTables_empty">Loading data from server</td> 
+        </tr></tbody><tfoot><tr>''' % len(headers)) 
+        temp.extend(headers)
+        temp.append('''</tr></tfoot></table>''')
+        
+        return ''.join(temp)
+
+    security.declareProtected('View management screens', "recordsTable")
+    def recordsTable(self):
+        "get data for the records DataTable"
+        return self.getJSONDataTable(lengthRecords=self.recordsLength, archive=0)
+
+    security.declareProtected('View management screens', "archiveTable")
+    def archiveTable(self):
+        "get data for the records DataTable"
+        return self.getJSONDataTable(lengthRecords=self.archiveLength, archive=1)
+
+    security.declarePrivate('getJSONDataTAble')
+    def getJSONDataTable(self, lengthRecords, archive):
+        "get the information for DataTable in json format"
+        data = {}
+        sortOrder = self.REQUEST.form.get('sSortDir_0', 'asc')
+        start = int(self.REQUEST.form.get('iDisplayStart', 0))
+        length = int(self.REQUEST.form.get('iDisplayLength', 10))
+        data['iTotalRecords'] = lengthRecords() if lengthRecords is not None else 0
+        data['iTotalDisplayRecords'] = data['iTotalRecords']
+        data['sEcho'] = self.REQUEST.form.get('sEcho', 0)
+        
+        if sortOrder == 'asc':
+            start = start
+            stop = start + length
+        elif sortOrder == 'desc':
+            stop = -start
+            start = -(start + length)
+            if not stop:
+                stop = data['iTotalRecords']
+        
+        encoding = self.getEncoding()
+        clean = utility.cleanEncodingSeq
+        escape_html_seq = utility.escape_html_seq
+        format = u'''<p onclick="javascript:$.colorbox({href:'%s/loadRecord?archive:int=%s&selectedDocument=%s', innerWidth:'600px', maxWidth:'85%%', maxHeight:'85%%', innerHeight:'600px', onComplete:function(){$('#cboxLoadedContent').css('background-color', 'white');}});">%s</p>'''
+        baseUrl = self.absolute_url_path()
+        
+        aaData = self.HTMLDataFilter.getDataRecords(self.HTMLDataFilter.getFieldOrder(), header=0, archive=archive, sliceStart=start, sliceStop=stop, keys=1)
+        aaData = ( (key,clean(record)) for key,record in aaData)
+        aaData = ( (key,escape_html_seq(record)) for key,record in aaData)
+        aaData = ([format % (baseUrl, archive, repr(key),entry) for entry in record] for key,record in aaData)
+        
+        data['aaData'] = list(aaData)
+        if sortOrder == 'desc':
+            data['aaData'].reverse()
+        return json.dumps(data, encoding=encoding)
+
+    security.declarePrivate('getYearsBeforeAndAfter')
     def getYearsBeforeAndAfter(self):
         "find the number of years on either side of the entries we have in records and archives from now"
         minRecord = None
@@ -285,8 +416,13 @@ class DataRecorder(base.Base):
             maxArchive = DateTime.DateTime(self.archive.maxKey())
         nowYear = DateTime.DateTime().year()
         
-        minYear = max((nowYear - min(minRecord.year(), minArchive.year())),1)
-        maxYear = max((max(maxRecord.year(), maxArchive.year()) - nowYear),1)
+        #need to make sure the items are not None
+        minRecordYear = minRecord.year() if minRecord is not None else nowYear
+        maxRecordYear = maxRecord.year() if maxRecord is not None else nowYear
+        minArchiveYear = minArchive.year() if minArchive is not None else nowYear
+        maxArchiveYear = maxArchive.year() if maxArchive is not None else nowYear
+        minYear = max((nowYear - min(minRecordYear, minArchiveYear)),1)
+        maxYear = max((max(maxRecordYear, maxArchiveYear) - nowYear),1)
         return minYear, maxYear
 
     security.declarePrivate('configAddition')
