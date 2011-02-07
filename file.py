@@ -52,12 +52,20 @@ class File(UserObject):
         except AttributeError:
             return value
 
+    security.declarePrivate('validate_urlExtension')
+    def validate_urlExtension(self, value):
+        "make sure we get rid of this if the value is false"
+        if value:
+            return value
+        else:
+            return ''
+
     security.declarePublic("__bobo_traverse__")
     def __bobo_traverse__(self, REQUEST, name):
         "__bobo_traverse__"
         extensions = []
-        if self.urlExtension:
-            extensions = self.urlExtension
+        if self.getConfig('urlExtension'):
+            extensions = self.getConfig('urlExtension')
         stack = self.REQUEST.TraversalRequestNameStack
         if stack and stack[0] in extensions:
             extension = stack[0]
@@ -166,8 +174,9 @@ class File(UserObject):
     def getUrlWithExtension(self, extension='', disableExtension=None):
         "process for a url extension and make sure it goes to a valid location otherwise just give back our current url"
         url = os.path.join(self.absolute_url_path(), self.filename)
-        if self.urlExtension and not (extension and extension in self.urlExtension):
-            extension = self.urlExtension[0]
+        urlExtension = self.getConfig('urlExtension')
+        if urlExtension and not (extension and extension in urlExtension):
+            extension = urlExtension[0]
         if extension and not disableExtension:
             try:
                 self.getCompoundDocContainer().restrictedTraverse(extension)
