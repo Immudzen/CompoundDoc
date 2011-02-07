@@ -15,6 +15,7 @@ import tempfile
 from BTrees.OOBTree import OOBTree
 import transaction
 import OFS.Image
+import chardet
 
 import itertools
 from PIL import ImageFile
@@ -76,6 +77,34 @@ def issubclass(class1, class2):
 
 # issubclass ()
 
+def cleanEncodingSeq(seq):
+    "if this is a string like object rencode it otherwise leave it alone"
+    seq = list(seq)
+    detect = []
+    output = []
+    
+    for item in seq:
+        if isinstance(item, basestring):
+            detect.append(item)
+    
+    encoding = chardet.detect(' '.join(detect))['encoding']
+    
+    for item in seq:
+        if not item:
+            output.append(item)
+        else:
+            try:
+                output.append(item.decode(encoding,'replace'))
+            except (AttributeError, TypeError):
+                output.append(unicode(item))
+    return output
+
+def escape_html_seq(seq):
+    "escape all the strings in this sequence so they are html safe"
+    for i in seq:
+        yield cgi.escape(i, 1)
+
+
 def isinstance(object, klass):
     """A version of 'isinstance' that works with extension classes
     as well as regular Python classes."""
@@ -103,6 +132,16 @@ def subTransDeactivate(seq, count, cacheGC=None):
             transaction.savepoint(optimistic=True)
         yield item
         item._p_deactivate()
+
+def subTransDeactivateKeyValue(seq, count, cacheGC=None):
+    "do a subtransaction for every count and also deactivate all objects"
+    cacheGC = cacheGC if cacheGC is not None else lambda :None
+    for idx,  item in enumerate(seq):
+        if idx % count == 0:
+            cacheGC()
+            transaction.savepoint(optimistic=True)
+        yield item
+        item[1]._p_deactivate()
 
 def log(name, short="", longMessage="", error_level=zLOG.INFO, reraise=0):
     "Log an error to a file"
