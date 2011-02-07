@@ -38,7 +38,8 @@ class TabManager(BaseTab):
                 query = query.copy()
                 query.update(queryDict)
                 menu.append(('%s/manage_workspace/%s' % (url,name),clickableName,selected, cssClass, query, ''))
-            return '<div class="tabControl">%s</div>' % NestedListURL.listRenderer(renderer,menu, self.columns)
+            cssClass = ' class="tabControl"' if renderer != 'JQuery UI Tabs' else ''
+            return '<div%s>%s</div>' % (cssClass, NestedListURL.listRenderer(renderer,menu, self.columns))
         return ""
 
     security.declareProtected('View management screens', 'edit')
