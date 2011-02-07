@@ -36,6 +36,11 @@ class GetSet:
         event = getattr(self, "event_%s" % name, None)
         if event is not None:
             event(content)
+            
+        validate = getattr(self, "validate_%s" % name, None)
+        if validate is not None and runValidation:
+            content = validate(content)
+        
         if hasattr(self.__class__, name) and getattr(self.__class__, name) == content:
             if name in self.__dict__:
                 delattr(self, name)
@@ -43,9 +48,6 @@ class GetSet:
             return
         currentValue = getattr(aq_base(self), name, None)
         if name not in self.__dict__ or content != currentValue:
-            validate = getattr(self, "validate_%s" % name, None)
-            if validate is not None and runValidation:
-                content = validate(content)
             setattr(self, name, content)
             self.updateParentPaths(name)
             aq_base(self)._updateMetaMapping(name, aq_base(content))
