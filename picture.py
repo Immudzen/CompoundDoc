@@ -201,7 +201,7 @@ class Picture(BasePicture):
             decode['tags'] = self.tags
 
             inc = IncrementalRender(decode)
-            imagesrc = '<img src="%(url)s" width="%(width)s" height="%(height)s" alt="%(alt)s" %(tags)s >' % inc
+            imagesrc = '<img src="%(url)s" width="%(width)s" height="%(height)s" alt="%(alt)s" %(tags)s %(additionalAttributes)s >' % inc
             url = self.url
             if url and (not utility.dtmlFree(url) or '://' in url):
                 #the replace part is needed because the url might have % in them for spaces etc and it needs to be escaped
@@ -209,12 +209,13 @@ class Picture(BasePicture):
             self.setObject('imagesrc', imagesrc)
 
     security.declareProtected('View', 'view')
-    def view(self, urlCallable=None, parent=None):
+    def view(self, urlCallable=None, parent=None, additionalAttributes=''):
         "Render page"
         parent = parent or self.getCompoundDocContainer()
         if self.exists():
             decode = {}
             decode['url'] = self.absolute_url_path()
+            decode['additionalAttributes'] = additionalAttributes
             image = self.imagesrc % decode
 
             url = self.url
@@ -248,6 +249,7 @@ class Picture(BasePicture):
         self.removeAttributeText()
         self.fixFileId()
         self.percentEscape()
+        self.addAdditionalVarsSupport()
 
     security.declarePrivate('fixupAlt')
     def fixupAlt(self):
