@@ -277,7 +277,12 @@ class DataRecorder(base.Base):
         temp = []
         temp.append('''<script type="text/javascript">
             $(function() {
-            $("#dataRecorderTab").tabs({ cache: true});
+            $("#dataRecorderTab").tabs({ cache: false , ajaxOptions: { cache: false }, 
+                load: function(event, ui) {$("a[rel^='lightbox']").colorbox({maxWidth:'85%%', maxHeight:'85%%', photo:true});
+                    $.fn.jPicker.defaults.images.clientPath='http://c2219172.cdn.cloudfiles.rackspacecloud.com/images/';
+                    $('.color_picker').jPicker();
+                    $("input:submit").removeClass('submitChanges submit').button();}   
+            });
             });
             </script>
             ''')
