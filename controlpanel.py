@@ -79,9 +79,8 @@ class ControlPanel(base.Base):
     def edit(self, *args, **kw):
         "Inline edit view"
         queryDict = utility.getQueryDict(self.REQUEST.environ.get('QUERY_STRING', ''))
-        return '<div class="configLeftBar">%s</div>%s' % (
-                NestedListURL.drawNestedList(self.traverseContainer(queryDict=queryDict)),
-                self.drawMenuSelected())
+        format = '<table style="vertical-align:top;"><tr><td class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">%s</td><td style="vertical-align:top;">%s</td></tr></table>'
+        return format % (NestedListURL.drawNestedListThemeroller(self.traverseContainer(queryDict=queryDict)), self.drawMenuSelected())
 
     security.declarePrivate('traverseContainer')
     def traverseContainer(self, queryDict = None):
