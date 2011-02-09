@@ -17,7 +17,7 @@ class ControlAddDel(ControlBase):
     security.declareProtected('View management screens', 'edit')
     def edit(self, *args, **kw):
         "Inline edit short object"
-        format = '<div class="configDataArea"><div>%s</div><div style="position:absolute; left:20em; top:0">%s</div></div>'
+        format = '<div class=""><div>%s</div><div style="position:absolute; left:20em; top:0">%s</div></div>'
         return format % (self.addObjectsEdit(), self.deleteObjectsEdit())
           
     security.declarePrivate('deleteObjectsEdit')
