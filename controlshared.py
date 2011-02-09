@@ -23,7 +23,7 @@ class ControlShared(ControlBase):
     security.declareProtected('View management screens', 'edit')
     def edit(self, *args, **kw):
         "Inline edit short object"
-        temp = ['<div class="configDataArea">']
+        temp = ['<div class="">']
         temp.append(self.checkMasterLocation())
         temp.append('</div>')
         return ''.join(temp)
