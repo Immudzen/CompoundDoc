@@ -24,6 +24,8 @@ from AccessControl import ClassSecurityInfo
 import Globals
 import manageEditForm
 import urllib
+import nestedlisturl as NestedListUrl
+import pprint
 
 import os.path
 
@@ -102,7 +104,7 @@ class Base(baseobject.BaseObject,
     
     def manage_tabs(self):
         "return the tabbed interface for editing this object"
-        format = '<div class="mainMenu">%s</div><div class="pathMenu">%s at  %s</div>'
+        format = '%s<div class="ui-widget ui-widget-content ui-corner-all">%s at  %s</div>'
         return format % (self.manage_absolute_urls(), self.meta_type, self.tabs_path_default())
 
     def tabs_path_default(self, unquote=urllib.unquote):
@@ -127,21 +129,17 @@ class Base(baseobject.BaseObject,
     def manage_absolute_urls(self, REQUEST={}):
         "create an absolute url sequence for management"
         url = self.absolute_url_path()
-        format = '<a href="%s%s" %s>%s</a>\n'
-        
-        queryString = self.REQUEST.environ.get('QUERY_STRING', '')
-        if queryString:
-            queryString = '?' + queryString
-        
         manageTab = self.REQUEST.URLPATH0.replace('%s/' % url, '').split('/')[0]
-        temp = []
-        append = temp.append
+        
+        cssClasses = ''
+        otherAttributes = ''
+        queryDict = utility.getQueryDict(self.REQUEST.environ.get('QUERY_STRING', ''))
+        menu = []
         for i in self.filtered_manage_options():
-            if i['action'] == manageTab:
-                append(format % (os.path.join(url, i['action']), queryString, 'class="highLight"', i['label']))
-            else:
-                append(format % (os.path.join(url, i['action']), queryString, '', i['label']))
-        return ''.join(temp)
+            selected = i['action'] == manageTab
+            menu.append((os.path.join(url, i['action']),i['label'],selected,cssClasses,queryDict,otherAttributes))
+        
+        return NestedListUrl.listRenderer('Themeroller Tabs',menu, None)
     
     security.declareProtected('View', "__call__")
     def __call__(self, client=None, REQUEST={}, RESPONSE=None, name=None, mode=None, **kw):
@@ -333,7 +331,7 @@ class Base(baseobject.BaseObject,
             temp.append('<p>My profile is: %s</p>' % self.profile)
         temp.append('<p>My type is: %s</p>' % self.meta_type)
         #Security reasons not sure what to do with this entirely yet but I think it is mostly obsolete
-        temp.append('<div>%s</div>' % self.convert(str(self.__dict__)))
+        temp.append('<pre>%s</pre>' % self.convert(pprint.pformat(self.__dict__)))
         return ''.join(temp)
 
     security.declarePrivate('getRemoteObject')
