@@ -114,11 +114,12 @@ class BaseObject(Persistence.Persistent, ObjectManager, object):
             $(document).ready(
                 function()
                 {
-                    $("a[rel^='lightbox']").colorbox({maxWidth:'85%', maxHeight:'85%', photo:true}); 
+                    $("a[rel^='lightbox']").colorbox({maxWidth:'85%', maxHeight:'85%', photo:true});
+                    $("input:submit").removeClass('submitChanges submit').button();
                     $.fn.jPicker.defaults.images.clientPath='http://c2219172.cdn.cloudfiles.rackspacecloud.com/images/';
                     $.fn.jPicker.defaults.window.position.x='0';
                     $.fn.jPicker.defaults.window.position.y='0';
-                    $('.color_picker').jPicker();
+                    $('.color_picker').jPicker();  
                 });
         </script>
         ''')
