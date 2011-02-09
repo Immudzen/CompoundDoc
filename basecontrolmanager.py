@@ -20,7 +20,7 @@ class BaseControlManager(ControlBase):
     drawMode = ''
     skipIds = ('ControlPanel',)
     startLoc = ''
-    cssClass = 'configDataArea'
+    cssClass = ''
     drawBlankPath = 1
     urlFormat = '%(url)s/%(id)s'
 
