@@ -18,7 +18,7 @@ class ControlEventManager(ControlBase):
     def edit(self, *args, **kw):
         "Inline edit short object"
         eventmanager = self.getCompoundDoc().EventManager
-        temp = ['<div class="configDataArea">']
+        temp = ['<div class="">']
         if eventmanager is not None:
             temp.append(eventmanager.addDeleteObjectsEdit())
             temp.append(self.submitChanges())
