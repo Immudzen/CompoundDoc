@@ -13,6 +13,7 @@ from AccessControl import ClassSecurityInfo
 import Globals
 
 import utility
+import nestedlisturl as NestedListUrl
 
 class ControlModeManager(BaseControlManager):
     "different mode views of objects"
@@ -34,52 +35,24 @@ class ControlModeManager(BaseControlManager):
             obj = None
         if obj is not None:
             queryString = self.REQUEST.environ.get('QUERY_STRING', '')
-            mode = self.getModeFromREQUEST(obj.drawDict)
+            draw_mode = self.getModeFromREQUEST(obj.drawDict)
             modes = sorted(obj.drawDict.keys())
-            
-            selectedIndex = self.REQUEST.form.get('selected', None)
-            if selectedIndex is None:
-                try:
-                    selectedIndex = modes.index(mode)
-                except ValueError:
-                    selectedIndex = 0
-            
             
             path = obj.absolute_url_path()
 
             temp = ['<div class="%s">' % self.cssClass]
-            temp.append('''<script type="text/javascript">
-            $(function() {
-            $( "#tabsMode" ).tabs( { cache: true, selected: %s,
+                     
+            menu = []
+            otherAttributes = ''
+            cssClasses = ''
+            queryDict = utility.getQueryDict(queryString)
+            for mode in modes:
+                selected = draw_mode == mode                
+                queryDict['renderType'] = mode
+                menu.append((self.REQUEST.URL,mode,selected,cssClasses,queryDict.copy(),otherAttributes))
             
-            show: function(event, ui) {$('#selected').val(ui.index);
-            var queryLoc = '#query_'+ui.index;
-            var query = $(queryLoc).attr('value');
-            $('.configLeftBar li a').each(function(){
-            var url = this.href.split('?')[0]+ '?' + query;
-            this.href = url;
-            })
-            },
-            load: function(event, ui) {$("a[rel^='lightbox']").colorbox({maxWidth:'85%%', maxHeight:'85%%', photo:true});
-            $.fn.jPicker.defaults.images.clientPath='http://c2219172.cdn.cloudfiles.rackspacecloud.com/images/';
-            $('.color_picker').jPicker();}
-            } );
-            });
-            </script>
-            ''' % selectedIndex)
-            temp.append('<div id="tabsMode"><ul>')
-            
-            modes = [(mode,utility.updateQueryString(queryString, {'renderType':mode})) for mode in modes]
-            
-            for mode, query in modes:
-                temp.append('<li><a href="%s/draw?%s">%s</a></li>' % (path, query, mode))
-            temp.append('</ul></div>')
-            
-            for idx,(mode,query) in enumerate(modes):
-                temp.append('<input type="hidden" id="query_%s" name="query" value="%s">' % (idx, query))
-            
-            temp.append('<input type="hidden" id="selected" name="selected" value="0">')
-            temp.append('<p>%s</p></div>' % self.submitChanges())
+            temp.append(NestedListUrl.listRenderer('Themeroller Tabs',menu, None))
+            temp.append('<p>%s</p><p>%s</p></div>' % (obj.draw(draw_mode), self.submitChanges()))
             return ''.join(temp)
         return ""
 
