@@ -19,7 +19,7 @@ class ControlProfileManager(ControlBase):
     def edit(self, *args, **kw):
         "Inline edit short object"
         temp = []
-        temp.append('<div class="configDataArea">')
+        temp.append('<div class="">')
         temp.append(self.saveCurrentProfileControl())  
         temp.append(self.quickProfForm())
         temp.append('<div>')
