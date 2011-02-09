@@ -24,6 +24,6 @@ class ControlLicense(ControlBase):
             temp = open(path, 'r').read()
         except IOError:
             temp = "The GPL LICENSE file could not be opened for some reason."
-        return '<div class="configDataArea"><pre>%s</pre></div>' % temp
+        return '<div class=""><pre>%s</pre></div>' % temp
 
 Globals.InitializeClass(ControlLicense)
