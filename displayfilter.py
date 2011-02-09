@@ -47,7 +47,7 @@ class DisplayFilter(base.Base):
         temp = []
         temp.append('''<script type="text/javascript">
             $(function() {
-            $("#tabsMode").tabs({ cache: true});
+            $("#tabsMode").tabs({ cache: false , ajaxOptions: { cache: false }});
             });
             </script>
             ''')
