@@ -41,7 +41,7 @@ class ControlConverter(ControlBase):
         "Inline edit short object"
         cdoc = self.getCompoundDoc()
         temp = []
-        temp.append('<div class="configDataArea">')
+        temp.append('<div class="">')
         format = '<p>%s:%s</p>'
         temp.append(format % (self.input_text('scriptPath', ''), 'Path to Scripts Folder'))
         if cdoc.DisplayManager is not None:
