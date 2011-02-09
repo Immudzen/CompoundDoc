@@ -35,7 +35,7 @@ class ControlDefaultManager(ControlBase):
     security.declareProtected('View management screens', 'edit')
     def edit(self, *args, **kw):
         "Inline edit short object"
-        temp = ['<div class="configDataArea">']
+        temp = ['<div class="">']
         creators = []
         cdoc = self.getCompoundDoc()
         for name,description in self.defaults:
