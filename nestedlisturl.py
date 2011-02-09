@@ -50,7 +50,40 @@ def drawNestedList(seq, containerClasses='', **kw):
         return '<ul class="%s">%s</ul>\n' % (containerClasses, temp)
     return ''
 
-def drawJQueryUITabs(seq, containerClasses='', **kw):
+def drawNestedListThemeroller(seq, containerClasses='', **kw):
+    "draw the nested list object and render it to a string"
+    format = '<a href="%s%s" class="item%s %s" %s>%s</a>'
+    themeroller_li = ['ui-state-default ui-corner-top', 'ui-state-default ui-corner-top ui-tabs-selected ui-state-active']
+    temp = []
+    length = len(seq)
+    if not length:
+        return ''
+    position = 1
+    for index,item in enumerate(seq):
+        if isinstance(item, types.TupleType):
+            url,link,selected,cssClasses,queryDict,otherAttributes = item
+            temp.append('<li class="%s">' % themeroller_li[selected])
+                
+            query = createQuery(queryDict)
+            temp.append(format % (url,query, position, cssClasses, otherAttributes, link))
+            position += 1
+        elif isinstance(item, types.StringType):
+            temp.append('<li>')
+            temp.append(item)
+            position += 1
+        else:
+            temp.append(drawNestedListThemeroller(item, containerClasses))
+        if index < (length-1) and isinstance(seq[index+1], (types.TupleType, types.StringType)):
+            temp.append('</li>')
+
+    if temp[len(temp)-1] != '</li>' and temp[0] == '<li>':
+        temp.append('</li>')
+    temp = ''.join(temp)
+    if temp:
+        return '<ul class="%s">%s</ul>\n' % (containerClasses, temp)
+    return ''
+
+def drawThemerollerTabs(seq, containerClasses='', **kw):
     "draw the nested list object and render it to a string"
     format = '<a href="%s%s" class="item%s %s" %s>%s</a>'
     jUI_li_tab = ['ui-state-default ui-corner-top', 'ui-state-default ui-corner-top ui-tabs-selected ui-state-active']
@@ -72,7 +105,7 @@ def drawJQueryUITabs(seq, containerClasses='', **kw):
             temp.append(item)
             position += 1
         else:
-            temp.append(drawJQueryUITabs(item, containerClasses))
+            temp.append(drawThemerollerTabs(item, containerClasses))
         if index < (length-1) and isinstance(seq[index+1], (types.TupleType, types.StringType)):
             temp.append('</li>')
 
@@ -329,10 +362,10 @@ def editTableRenderer(self):
 lookup = {'Vertical': drawNestedList, 'Horizontal':drawNestedListHorizontal, 'Table':drawNestedListTable,
     'DropDown':drawDropDown, 'Horizontal Span':drawNestedListHorizontalSpan, 'Rounded':roundedCorners, 
     'Rounded Table':roundedCornersTable, 'Rounded Table Grid':drawRoundedTableGrid,
-    'JQuery UI Tabs':drawJQueryUITabs}
+    'Themeroller Tabs':drawThemerollerTabs, 'Themeroller Nested List':drawNestedListThemeroller}
 editLookup = {'Vertical': doNothing, 'Horizontal':doNothing, 'Table':editTableRenderer, 'DropDown':doNothing, 
     'Horizontal Span':doNothing, 'Rounded':doNothing, 'Rounded Table':doNothing, 'Rounded Table Grid':editTableRenderer,
-    'JQuery UI Tabs':doNothing}
+    'Themeroller Tabs':doNothing, 'Themeroller Nested List':doNothing}
 
 additionalVars = {'columns': 0}
 
@@ -344,6 +377,6 @@ def editRenderer(format, self):
     "return something to edit this renderer if needed"
     return editLookup[format](self)
 
-class NestedListURL(base.Base):
-    "this is a nested url object based on a list construct"
-    meta_type = "NestedListURL"
+#class NestedListURL(base.Base):
+#    "this is a nested url object based on a list construct"
+#    meta_type = "NestedListURL"
