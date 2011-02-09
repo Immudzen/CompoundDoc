@@ -29,7 +29,7 @@ class ControlCallableRender(ControlBase):
     def edit(self, *args, **kw):
         "Inline edit short object"
         temp = []
-        temp.append('<div class="configDataArea">')
+        temp.append('<div class="">')
 
         cdoc = self.getCompoundDoc()
         if cdoc.displayMap is not None:
