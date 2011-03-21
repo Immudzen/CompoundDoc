@@ -34,7 +34,7 @@ class AutoCreatorGetter(Base):
     def createDataSourceFromTree(self):
         "create an appropriate data source to be used to create another cdoc structure based on what is below folder"
         try:
-            return ['%s %s' % (path, profile) for path, profile, object in self.getCdocList()]
+            return ['%s %s' % (path, profile) for path, profile, _ in self.getCdocList()]
         except AttributeError:
             return ['Bad folder Location Given']
 
@@ -47,10 +47,10 @@ class AutoCreatorGetter(Base):
         for i in self.CDocUpgrader(path=folderUrl):
             try:
                 profile = i.profile
-                object = i.getObject()
-                if profile and object is not None:
+                cdoc = i.getObject()
+                if profile and cdoc is not None:
                     path = i.getPath().replace(folderUrl,'')
-                    cdoclist.append((path, profile, object))
+                    cdoclist.append((path, profile, cdoc))
             except (zExceptions.Unauthorized, zExceptions.NotFound, KeyError):
                 pass
                 
