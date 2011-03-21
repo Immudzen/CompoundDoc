@@ -112,11 +112,6 @@ class ObjectRecorder(base.Base):
                 record['processed'] = value
                 self.records[int(key)] = record
 
-    security.declareProtected('View', 'view')
-    def view(self):
-        "Render page"
-        return ''
-
     security.declareProtected('Python Record Addition', 'addRecord')
     def addRecord(self, record):
         "Add a record object which is of the type that we are currently accepting"
