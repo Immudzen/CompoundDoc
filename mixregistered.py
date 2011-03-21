@@ -84,8 +84,6 @@ from freightorderlisting import FreightOrderListing
 
 from selection import Selection
 
-from cache import Cache
-
 from autocreator import AutoCreator
 from autocreatorgetter import AutoCreatorGetter
 from autopopulatorgetter import AutoPopulatorGetter
