@@ -26,12 +26,6 @@ class AttributeBase(Base):
         object view."""
         return self.gen_html(self.data)
 
-    security.declareProtected('View management screens', 'edit')
-    def edit(self, *args, **kw):
-        """This is the edit dispatcher. It should dispatch to the appropriate
-        object edit view."""
-        return "<p>This object(%s) has not yet implemented this feature(edit).</p>" % self.getId()
-
     security.declarePrivate('dtmlFree')
     def dtmlFree(self):
         "return true if this object has no dtml in it"
