@@ -18,11 +18,6 @@ class DisplayManager(base.Base):
     get_default = {'edit':'defaultEdit', 'view':'defaultView'}
     usageMapping = None
 
-    security.declareProtected('View', 'view')
-    def view(self):
-        "Inline draw view"
-        return ""
-
     security.declarePrivate('render')
     def render(self, purpose, display=None):
         "Please render an item with this purpose"
