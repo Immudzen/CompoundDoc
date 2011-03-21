@@ -3,6 +3,7 @@ import baseremoteembed
 #For Security control and init
 from AccessControl import ClassSecurityInfo
 import Globals
+from . import utility
 
 class ObjectCompoundController(baseremoteembed.BaseRemoteEmbed):
     "Uses the Catalogs to give access to a view of many compounddocs"
