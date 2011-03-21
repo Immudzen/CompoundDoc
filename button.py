@@ -25,11 +25,6 @@ class Button(UserObject):
         "Inline edit short object"
         return self.create_button(self.buttonTitle, self.buttonTitle)
 
-    security.declareProtected('View', 'view')
-    def view(self):
-        "Inline draw view"
-        return ""
-
     security.declarePrivate('classUpgrader')
     def classUpgrader(self):
         "upgrade this class"
