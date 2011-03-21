@@ -41,10 +41,6 @@ class FreightCompanyCreator(UserObject):
         "return the freight classes that we have"
         return self.freightClasses.getAvailableListsContents()
 
-    security.declareProtected('View', 'view')
-    def view(self):
-        "Inline draw view"
-        return ''
 
 Globals.InitializeClass(FreightCompanyCreator)
 import register
