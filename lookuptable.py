@@ -55,11 +55,6 @@ class LookupTable(base.Base):
         "process the edits"
         self.processRecorderChanges(form)
 
-    security.declareProtected('View', 'view')
-    def view(self):
-        "Render page"
-        return ''
-
     security.declareProtected('View management screens', "drawTable")
     def drawTable(self):
         "Render page"
