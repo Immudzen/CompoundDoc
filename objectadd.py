@@ -28,11 +28,6 @@ class ObjectAdd(Base):
         "create an addition that allows setting the type of objects to add and the text before we add"
         return self.option_select(self.getCompoundDoc().restrictedUserObject(), 'typeToAdd', [self.typeToAdd])
 
-    security.declareProtected('View', 'view')
-    def view(self):
-        "Render page"
-        return ''
-
 Globals.InitializeClass(ObjectAdd)
 import register
 register.registerClass(ObjectAdd)
