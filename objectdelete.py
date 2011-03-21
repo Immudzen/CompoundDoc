@@ -28,11 +28,6 @@ class ObjectDelete(Base):
         "create an addition that allows setting the type of objects to add and the text before we add"
         return self.option_select(self.getCompoundDoc().restrictedUserObject(), 'typeToDelete', [self.typeToDelete])
 
-    security.declareProtected('View', 'view')
-    def view(self):
-        "Render page"
-        return ''
-
 Globals.InitializeClass(ObjectDelete)
 import register
 register.registerClass(ObjectDelete)
