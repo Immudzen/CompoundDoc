@@ -75,11 +75,6 @@ class AutoCreator(Base):
         temp.append(self.editSingleConfig('loadableDataFile'))
         return ''.join(temp)
 
-    security.declareProtected('View', 'view')
-    def view(self):
-        "Inline draw view"
-        return ''
-
     security.declarePrivate('after_manage_edit')
     def after_manage_edit(self, dict):
         "Process edits."
