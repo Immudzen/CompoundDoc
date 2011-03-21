@@ -145,7 +145,7 @@ class File(UserObject):
         return self.fileSize
 
     security.declareProtected('View', 'view')
-    def view(self, title='', extension='', disableExtension=None, query=None, url=None):
+    def view(self, title='', extension='', disableExtension=None, query=None, url=None, showSize=1):
         "Render page"
         queryString = ''
         if query is not None:
@@ -163,10 +163,12 @@ class File(UserObject):
                 target = ''
             if self.fileUrl:
                 fileSize = ''
-            else:
+            elif showSize:
                 fileSize = self.getFileSize()
                 if fileSize:
                     fileSize = '(%s)' % fileSize
+            else:
+                fileSize = ''
             return '<a href="%s%s" %s>%s</a> %s' % (url, queryString, target, title, fileSize)
         return ""
 
