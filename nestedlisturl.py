@@ -375,7 +375,10 @@ def listRenderer(format,seq, columns, containerClasses=''):
 
 def editRenderer(format, self):
     "return something to edit this renderer if needed"
-    return editLookup[format](self)
+    try:
+        return editLookup[format](self)
+    except KeyError:
+        return '<p>No edit interface could be found for (%s)</p>' % format
 
 #class NestedListURL(base.Base):
 #    "this is a nested url object based on a list construct"
