@@ -78,11 +78,6 @@ class Issue(ListText):
             if self.isOkayToVote(uid):
                 self.vote(uid,choices)
 
-    security.declareProtected('View', 'view')
-    def view(self):
-        "Inline draw view"
-        return ''
-
     security.declareProtected('CompoundDoc: Voting', 'drawVote')
     def drawVote(self):
         "draw the voting interface"
