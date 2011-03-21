@@ -74,11 +74,6 @@ class PropertiesEmbed(UserObject):
                 if embed is not None:
                     embed.manage_changeProperties(**value)
 
-    security.declareProtected('View', 'view')
-    def view(self):
-        "Inline draw view"
-        return ''
-
 Globals.InitializeClass(PropertiesEmbed)
 import register
 register.registerClass(PropertiesEmbed)
