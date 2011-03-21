@@ -35,11 +35,6 @@ class BaseTab(Base):
 
     configurable = ('configScript', 'active', 'renderer', 'tabOrder', 'tabMapping')
 
-    security.declareProtected('View', 'view')
-    def view(self):
-        "Inline draw view"
-        return ''
-
     security.declarePrivate('getTabMapping')
     def getTabMapping(self, name):
         "get the tabMapping from this name"
