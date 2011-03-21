@@ -15,11 +15,6 @@ class CreationAssistant(base.Base):
     metaType = ''
     idTypeMapping = None
 
-    security.declareProtected('View management screens', 'edit')
-    def edit(self, *args, **kw):
-        "Inline edit short object"
-        return ''
-
     security.declarePrivate('after_manage_edit')
     def after_manage_edit(self, dict):
         "Process edits."
