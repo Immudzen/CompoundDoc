@@ -86,6 +86,7 @@ class AutoCreator(Base):
         scriptPath = dict.get('filterScript', '')
         loadableData =  dict.get('loadableData', '')
         loadableDataFile = dict.get('loadableDataFile', '')
+        loadableDataFile = loadableDataFile.read() if loadableDataFile else ''
         if scriptPath:
             script = self.restrictedTraverse(scriptPath, None)
             if script is not None:
