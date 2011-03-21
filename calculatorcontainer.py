@@ -19,11 +19,6 @@ class CalculatorContainer(Base):
     overwrite=1
     objectOrder = None
 
-    security.declareProtected('View', 'view')
-    def view(self):
-        "Inline draw view"
-        return ""
-
     security.declarePrivate('restrictedUserObject')
     def restrictedUserObject(self):
         "Return a list of the types that are allowed to be added or deleted from this object by a user"
