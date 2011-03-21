@@ -59,11 +59,6 @@ class EventBlankDTML(BaseEvent):
         "return the dtml string that can be run"
         return getattr(self, 'dtmlstring')
 
-    security.declareProtected('View', 'view')
-    def view(self):
-        "Inline draw view"
-        return ''
-
 Globals.InitializeClass(EventBlankDTML)
 import register
 register.registerClass(EventBlankDTML)
