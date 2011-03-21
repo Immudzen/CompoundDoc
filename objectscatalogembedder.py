@@ -121,12 +121,6 @@ class ObjectsCatalogEmbedder(basecatalog.BaseCatalog):
         temp.extend(table)
         return ''.join(temp)
 
-    security.declareProtected('View', 'view')
-    def view(self):
-        "Inline draw view"
-        return ""
-
-
 Globals.InitializeClass(ObjectsCatalogEmbedder)
 import register
 register.registerClass(ObjectsCatalogEmbedder)
