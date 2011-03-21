@@ -30,10 +30,6 @@ class CreditCardManager(base.Base):
     classConfig['processedOkayVar'] = {'name':'Processed Okay Var Name:', 'type':'string'} 
     classConfig['shoppingCartLocation'] = {'name':'Shopping Cart Location:', 'type':'string'}   
 
-    def edit(self, *args, **kw):
-        "default edit"
-        return ''
-
     security.declarePrivate('configAddition')
     def configAddition(self):
         "Inline edit view"
