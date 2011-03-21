@@ -88,11 +88,6 @@ class Calculator(UserObject):
         if object is not None:
             return object
 
-    security.declareProtected('View', 'view')
-    def view(self):
-        "Inline draw view"
-        return ''
-
 Globals.InitializeClass(Calculator)
 import register
 register.registerClass(Calculator)
