@@ -67,11 +67,6 @@ class ListMailer(UserObject):
                 server.sendmail(From, address, msg % (From, address, Subject, message))
             server.quit()
 
-    security.declareProtected('View', 'view')
-    def view(self):
-        "Render page"
-        return ''
-
     security.declarePrivate('classUpgrader')
     def classUpgrader(self):
         "upgrade this class"
