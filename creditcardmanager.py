@@ -29,11 +29,6 @@ class CreditCardManager(base.Base):
     classConfig['processedVar'] = {'name':'Processed Var Name:', 'type':'string'}
     classConfig['processedOkayVar'] = {'name':'Processed Okay Var Name:', 'type':'string'} 
     classConfig['shoppingCartLocation'] = {'name':'Shopping Cart Location:', 'type':'string'}   
-    
-    security.declareProtected('View', 'view')
-    def view(self):
-        "Inline draw view"
-        return ""
 
     def edit(self, *args, **kw):
         "default edit"
