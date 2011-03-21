@@ -318,6 +318,11 @@ class Base(baseobject.BaseObject,
         "default view that just returns a blank string"
         return ''
 
+    security.declareProtected('View management screens', 'edit')
+    def edit(self):
+        "default edit that just returns a blank string"
+        return ''
+
     security.declarePrivate("getDictName")
     def getDictName(self):
         "Return the names of these items in a list but formatted for the form output filter"
