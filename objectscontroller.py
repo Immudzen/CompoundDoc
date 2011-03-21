@@ -272,11 +272,6 @@ class ObjectsController(ObjectCompoundController):
             objects.sort(key=operator.attrgetter(sorton))
         objects.sort()
 
-    security.declareProtected('View', 'view')
-    def view(self):
-        "Inline draw view"
-        return ''
-
 Globals.InitializeClass(ObjectsController)
 import register
 register.registerClass(ObjectsController)
