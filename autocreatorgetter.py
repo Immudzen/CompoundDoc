@@ -57,10 +57,6 @@ class AutoCreatorGetter(Base):
         cdoclist.sort()
         return cdoclist
 
-    security.declareProtected('View', 'view')
-    def view(self):
-        "Inline draw view"
-        return ''
 
 Globals.InitializeClass(AutoCreatorGetter)
 import register
