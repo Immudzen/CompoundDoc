@@ -88,7 +88,7 @@ class BaseObject(Persistence.Persistent, ObjectManager, object):
             <META http-equiv="Content-Type" content="text/html; charset=%s">
             <title>CompoundDoc</title>''' % (language,encoding)]
         
-        temp.append('<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.1/themes/%s/jquery-ui.css">' % theme)
+        temp.append('<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.10/themes/%s/jquery-ui.css">' % theme)
         
         if getattr(self,'cssDocEdit',None):
             temp.append('<link rel="stylesheet" type="text/css" href="%s/cssDocEditWrapper">' % cdocUrl)
@@ -105,8 +105,8 @@ class BaseObject(Persistence.Persistent, ObjectManager, object):
         <link rel="stylesheet" type="text/css" href="http://s3.amazonaws.com/media.webmediaengineering.com/CompoundDoc/mainEdit_1{gz}.css">        
         <link rel="stylesheet" type="text/css" href="http://s3.amazonaws.com/media.webmediaengineering.com/CompoundDoc/default_4{gz}.css">
         
-        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.1/jquery-ui.min.js"></script>
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.10/jquery-ui.min.js"></script>
         <script type="text/javascript" src="http://s3.amazonaws.com/media.webmediaengineering.com/CompoundDoc/default_3{gz}.js"></script>'''.format(gz=gzip_extension))
         
         temp.append('''
