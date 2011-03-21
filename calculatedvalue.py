@@ -25,11 +25,6 @@ class CalculatedValue(UserObject):
 
     configurable = ('callableObjectPath')
 
-    security.declareProtected('View management screens', 'edit')
-    def edit(self, *args, **kw):
-        "Inline edit short object"
-        return ''
-
     security.declareProtected('View', 'view')
     def view(self, *args, **kw):
         "Inline draw view"
