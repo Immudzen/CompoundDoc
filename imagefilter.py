@@ -2,7 +2,6 @@
 #This software is released under GNU public license. See details in the URL:
 #http://www.gnu.org/copyleft/gpl.html
 
-from userobject import UserObject
 import OFS.Image
 from basepicture import BasePicture
 
