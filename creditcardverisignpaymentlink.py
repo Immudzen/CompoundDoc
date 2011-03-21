@@ -43,11 +43,6 @@ class CreditCardVerisignPaymentLink(base.Base):
     classConfig['partner'] = {'name':'Partner:', 'type':'string'}
     classConfig['postURL'] = {'name':'POST URL:', 'type':'string'}
     classConfig['orderCompleteScript'] = {'name':'Location of the Order Completion Script:', 'type':'string'} 
-    
-    security.declareProtected('View', 'view')
-    def view(self):
-        "Inline draw view"
-        return ""
 
     security.declarePrivate('configAddition')
     def configAddition(self):
