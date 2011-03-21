@@ -41,11 +41,6 @@ class FreightCompany(UserObject):
             listing[format % {'freightClassName':freightClass.freightClass}] = freightClass.price.float()
         return listing
 
-    security.declareProtected('View', 'view')
-    def view(self):
-        "Inline draw view"
-        return ''
-
     security.declarePrivate('syncFreightClasses')
     def syncFreightClasses(self, seq=None):
         "sync the FreightClass objects that we have with what is in the list"
