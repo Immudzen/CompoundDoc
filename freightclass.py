@@ -37,11 +37,6 @@ class FreightClass(UserObject):
     security.declarePrivate('instance')
     instance = (('price', ('create', 'Money')),)
 
-    security.declareProtected('View', 'view')
-    def view(self):
-        "Inline draw view"
-        return ''
-
 Globals.InitializeClass(FreightClass)
 import register
 register.registerClass(FreightClass)
