@@ -23,11 +23,6 @@ class CatalogManager(Selection, basemanager.BaseManager):
     
     classConfig = {}
     classConfig['catalogScriptPath'] = {'name':'Path to Catalog Script', 'type':'path'}
-    
-    security.declareProtected('View', 'view')
-    def view(self):
-        "Inline draw view"
-        return ""
 
     security.declarePrivate('getChoices')
     def getChoices(self):
