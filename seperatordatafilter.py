@@ -4,7 +4,6 @@ import datafilter
 #For Security control and init
 from AccessControl import ClassSecurityInfo
 import Globals
-import StringIO
 import csv
 import urllib
 
