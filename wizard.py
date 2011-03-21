@@ -24,11 +24,6 @@ class Wizard(base.Base):
 
     classConfig = {}
     classConfig['script'] = {'name':'Path to Script', 'type':'string'}
-    
-    security.declareProtected('View', 'view')
-    def view(self):
-        "Inline draw view"
-        return ''
 
     security.declareProtected('View', 'getFormLocation')
     def getFormLocation(self):
