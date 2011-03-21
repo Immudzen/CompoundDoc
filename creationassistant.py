@@ -20,11 +20,6 @@ class CreationAssistant(base.Base):
         "Inline edit short object"
         return ''
 
-    security.declareProtected('View', 'view')
-    def view(self):
-        "Render page"
-        return ''
-
     security.declarePrivate('after_manage_edit')
     def after_manage_edit(self, dict):
         "Process edits."
