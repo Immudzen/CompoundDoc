@@ -36,11 +36,6 @@ class CreditCardECHO(base.Base):
       ('ECHOBadOrder',('create', 'ObjectRecorder')),('BatchAmount',('create', 'DataRecorder')),
       ('discountRate',('create', 'InputText')),('transactionFee',('create', 'InputText')))
 
-    security.declareProtected('View', 'view')
-    def view(self):
-        "Inline draw view"
-        return ""
-
     classConfig = {}
     classConfig['userName'] = {'name':'User Name:', 'type':'string'} 
     classConfig['password'] = {'name':'Password:', 'type':'string'}
