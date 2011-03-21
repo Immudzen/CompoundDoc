@@ -12,7 +12,6 @@ from base import Base
 #For Security control and init
 from AccessControl import ClassSecurityInfo
 import Globals
-from Acquisition import aq_base
 import utility
 
 class FreightCompanyWatcher(Base):
