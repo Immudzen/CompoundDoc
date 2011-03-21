@@ -99,11 +99,6 @@ class Ballot(ListText):
         "get the unique id for this ballot"
         return uidgenerator.getUID(self.uid, self)
 
-    security.declareProtected('View', 'view')
-    def view(self):
-        "Inline draw view"
-        return ''
-
     security.declareProtected('View', 'drawVote')
     def drawVote(self):
         "draw the voting interface"
