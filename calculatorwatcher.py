@@ -32,11 +32,6 @@ class CalculatorWatcher(Base):
             self.observerUpdate()
             object.observerAttached(self)
 
-    security.declareProtected('View', 'view')
-    def view(self):
-        "Inline draw view"
-        return ""
-
     security.declarePrivate('observerUpdate')
     def observerUpdate(self, object=None):
         "Process what you were observing"
