@@ -35,11 +35,6 @@ class ScriptTitleEmbed(UserObject):
                 if script is not None:
                     script.ZPythonScript_setTitle(value['title'])
 
-    security.declareProtected('View', 'view')
-    def view(self):
-        "Inline draw view"
-        return ''
-
 Globals.InitializeClass(ScriptTitleEmbed)
 import register
 register.registerClass(ScriptTitleEmbed)
