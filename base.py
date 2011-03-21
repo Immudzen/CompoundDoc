@@ -313,6 +313,11 @@ class Base(baseobject.BaseObject,
                 return render(**kw)
         return ''
 
+    security.declareProtected('View', 'view')
+    def view(self):
+        "default view that just returns a blank string"
+        return ''
+
     security.declarePrivate("getDictName")
     def getDictName(self):
         "Return the names of these items in a list but formatted for the form output filter"
