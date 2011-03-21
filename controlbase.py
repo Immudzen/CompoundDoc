@@ -17,11 +17,6 @@ class ControlBase(Base):
         "Inline edit short object"
         return ""
 
-    security.declareProtected('View', 'view')
-    def view(self):
-        "Inline draw view"
-        return ""
-
     def index_html(self):
         "Default view of this object"
         return self.getCompoundDoc().ControlPanel.index_html()
