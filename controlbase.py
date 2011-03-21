@@ -12,11 +12,6 @@ class ControlBase(Base):
     meta_type = "ControlBase"
     security = ClassSecurityInfo()
 
-    security.declareProtected('View management screens', 'edit')
-    def edit(self, *args, **kw):
-        "Inline edit short object"
-        return ""
-
     def index_html(self):
         "Default view of this object"
         return self.getCompoundDoc().ControlPanel.index_html()
