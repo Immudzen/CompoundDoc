@@ -15,11 +15,6 @@ class EventManager(base.Base):
     security = ClassSecurityInfo()
     overwrite=1
 
-    security.declareProtected('View', 'view')
-    def view(self):
-        "Inline draw view"
-        return ""
-
     security.declareProtected('View management screens', 'edit')
     def edit(self, *args, **kw):
         "Inline edit view"
