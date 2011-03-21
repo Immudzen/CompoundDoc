@@ -19,11 +19,6 @@ class DataFilter(UserObject):
     visible = None
 
     updateReplaceList = ('order', 'visible')
-
-    security.declareProtected('View', 'view')
-    def view(self):
-        "Inline draw view"
-        return ""
     
     security.declarePrivate('PrincipiaSearchSource')
     def PrincipiaSearchSource(self):
