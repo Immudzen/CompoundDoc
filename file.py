@@ -35,6 +35,7 @@ class File(UserObject):
     classConfig['deletion'] = {'name':'deletion', 'type': 'radio'}
     classConfig['showPreview'] = {'name':'preview', 'type': 'radio'}
     classConfig['showOpenInNewWindow'] = {'name':'showOpenInNewWindow', 'type': 'radio'}
+    classConfig['openFileInNewWindow'] = {'name':'openFileInNewWindow', 'type': 'radio'}
     classConfig['urlExtension'] = {'name':'urlExtension', 'type':'tokens'}
     classConfig['title'] = {'name':'title', 'type':'string'}
     classConfig['filename'] = {'name':'filename', 'type':'string'}
