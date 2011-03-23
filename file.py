@@ -146,7 +146,7 @@ class File(UserObject):
         return self.fileSize
 
     security.declareProtected('View', 'view')
-    def view(self, title='', extension='', disableExtension=None, query=None, url=None, showSize=1):
+    def view(self, title='', extension='', disableExtension=None, query=None, url=None, showSize=1, openFileInNewWindow=None):
         "Render page"
         queryString = ''
         if query is not None:
@@ -158,7 +158,8 @@ class File(UserObject):
                 title = self.title
             if url is None:
                 url = self.getUrlWithExtension(extension, disableExtension)
-            if self.getConfig('openFileInNewWindow'):
+            openFileInNewWindow = openFileInNewWindow if openFileInNewWindow is not None else self.getConfig('openFileInNewWindow')
+            if openFileInNewWindow:
                 target = 'target="_blank"'
             else:
                 target = ''
