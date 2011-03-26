@@ -402,7 +402,7 @@ class DataRecorder(base.Base):
         data['aaData'] = list(aaData)
         if sortOrder == 'desc':
             data['aaData'].reverse()
-        return json.dumps(data, encoding=encoding)
+        return json.dumps(data).encode(encoding, 'xmlcharrefreplace')
 
     security.declarePrivate('getYearsBeforeAndAfter')
     def getYearsBeforeAndAfter(self):
