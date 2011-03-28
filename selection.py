@@ -259,7 +259,7 @@ class Selection(UserObject):
     
     security.declareProtected('Change CompoundDoc', 'clear')
     def clear(self):
-        self.setObject('data', None)
+        self.setObject('data', None, runValidation=0)
         
     security.declareProtected('Change CompoundDoc', 'store')
     def store(self, items,  runValidation=1):
