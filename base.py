@@ -104,8 +104,11 @@ class Base(baseobject.BaseObject,
     
     def manage_tabs(self):
         "return the tabbed interface for editing this object"
-        format = '%s<div class="ui-widget ui-widget-content ui-corner-all">%s at  %s</div>'
-        return format % (self.manage_absolute_urls(), self.meta_type, self.tabs_path_default())
+        if 'Manager' in getSecurityManager().getUser().getRoles():
+            format = '%s<div class="ui-widget ui-widget-content ui-corner-all">%s at  %s</div>'
+            return format % (self.manage_absolute_urls(), self.meta_type, self.tabs_path_default())
+        else:
+            return ''
 
     def tabs_path_default(self, unquote=urllib.unquote):
         "Custom tabs_path_default for creating the white on black interface"
