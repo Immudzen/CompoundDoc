@@ -52,7 +52,18 @@ class ControlModeManager(BaseControlManager):
                 menu.append((self.REQUEST.URL,mode,selected,cssClasses,queryDict.copy(),otherAttributes))
             
             temp.append(NestedListUrl.listRenderer('Themeroller Tabs',menu, None))
-            temp.append('<p>%s</p><p>%s</p></div>' % (obj.draw(draw_mode), self.submitChanges()))
+            
+            tab_format = '<div id="%s">%s<div>%s</div></div>'
+            config_object = obj.getConfigObject()
+            if config_object is not None and config_object is not self:
+                temp.append('<div id="control_tabs">')
+                temp.append('<ul><li><a href="#Local">Local</a></li><li><a href="#Config">Config</a></li></ul>')
+                temp.append(tab_format % ('Local', obj.draw(draw_mode), self.submitChanges()))
+                temp.append(tab_format % ('Config', config_object.draw(draw_mode), self.submitChanges()))
+                temp.append('</div>')
+            else:
+                temp.append(obj.draw(draw_mode))
+                temp.append('<div>%s</div>' % self.submitChanges())
             return ''.join(temp)
         return ""
 
