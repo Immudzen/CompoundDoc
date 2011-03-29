@@ -48,6 +48,16 @@ class BaseObject(Persistence.Persistent, ObjectManager, object):
         "get the config item of this name, try to get it remotely if we don't have it locally"
         if name in self.__dict__:
             return getattr(self,name)
+        obj = self.getConfigObject()
+        if obj is not None:
+            try:
+                return getattr(obj, name)
+            except AttributeError:
+                pass
+        return getattr(self,name)
+
+    def getConfigObject(self):
+        "return the config object that matches the current object"
         configDoc = self.getConfigDoc()
         if configDoc is not None:
             cdoc = self.getCompoundDoc()
@@ -58,12 +68,7 @@ class BaseObject(Persistence.Persistent, ObjectManager, object):
             else:
                 path = ''
             obj = configDoc.unrestrictedTraverse(path, None)
-            if obj is not None:
-                try:
-                    return getattr(obj, name)
-                except AttributeError:
-                    pass
-        return getattr(self,name)
+            return obj    
 
     security.declarePublic('gzip_extension')
     def gzip_extension(self):
@@ -120,6 +125,8 @@ class BaseObject(Persistence.Persistent, ObjectManager, object):
                     $.fn.jPicker.defaults.window.position.x='0';
                     $.fn.jPicker.defaults.window.position.y='0';
                     $('.color_picker').jPicker();  
+                    $( "#control_tabs" ).tabs();
+                    
                 });
         </script>
         ''')
