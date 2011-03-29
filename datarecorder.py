@@ -242,12 +242,13 @@ class DataRecorder(base.Base):
     security.declareProtected('View management screens', "edit")
     def edit(self, dateFormat='jQueryUIDate', *args, **kw):
         "Inline edit short object"
-        format = """<p>Currently there are %s records and %s in archive</p>
-        <div>%s%s%s</div><p>Find Items Between:%s and %s</p>
-        <p>%s</p>"""
+        format = """%s<div>%s%s%s</div><p>Find Items Between:%s and %s</p><p>%s</p>"""
         
         lenArchive = self.archiveLength() if self.archiveLength is not None else 0
         lenRecords = self.recordsLength() if self.recordsLength is not None else 0
+
+        rows = [('', 'Number of records'), ('Inbox', lenRecords), ('Archive', lenArchive)]
+        
 
         clear = ''
         archive = ''
@@ -267,7 +268,7 @@ class DataRecorder(base.Base):
         
         yearsBefore, yearsAfter = self.getYearsBeforeAndAfter()
         
-        return format % (lenRecords, lenArchive, archiveClear,
+        return format % (self.createTable(rows), archiveClear,
           archive, clear, self.startTime(mode='edit', format=dateFormat, yearsBefore=yearsBefore, yearsAfter=yearsAfter), 
           self.stopTime(mode='edit', format=dateFormat, yearsBefore=yearsBefore, yearsAfter=yearsAfter), self.submitChanges())
 
