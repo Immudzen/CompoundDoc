@@ -29,8 +29,22 @@ class ControlCallableRender(ControlBase):
     def edit(self, *args, **kw):
         "Inline edit short object"
         temp = []
-        temp.append('<div class="">')
+        tab_format = '<div id="%s">%s</div>'
+        config_object = self.getConfigObject()
+        if config_object is not None and config_object is not self:
+            temp.append('<div id="control_tabs">')
+            temp.append('<ul><li><a href="#Local">Local</a></li><li><a href="#Config">Config</a></li></ul>')
+            temp.append(tab_format % ('Local', self.edit_render()))
+            temp.append(tab_format % ('Config', config_object.edit_render()))
+            temp.append('</div>')
+        else:
+            temp.append(self.edit_render())
+        return ''.join(temp)
 
+    security.declareProtected('View management screens', 'edit_render')
+    def edit_render(self):
+        "create an edit interface for the local render object"
+        temp = []
         cdoc = self.getCompoundDoc()
         if cdoc.displayMap is not None:
             displays = [''] + list(cdoc.displayMap.keys())
@@ -81,7 +95,6 @@ class ControlCallableRender(ControlBase):
                     headerEdit, headerHref,
                     bodyEdit, bodyHref,
                     footerEdit, footerHref,deleteControl))
-        temp.append('</div>')
         return ''.join(temp)
 
     security.declarePrivate('formAdd')
