@@ -12,8 +12,10 @@ from AccessControl import ClassSecurityInfo
 import Globals
 import utility
 import urllib
-
+import stat
+import os
 import os.path
+import ZODB.blob
 
 class File(UserObject):
     "File Class"
@@ -129,11 +131,11 @@ class File(UserObject):
         "Update the content type of the installed file"
         if self.exists():
             if self.hasObject('data'):
-                object = aq_base(self.data)
-                if hasattr(object, 'data'):
-                    filename = utility.createTempFile(object.data)
-                    object.content_type = magicfile.magic(filename)
-                    utility.removeTempFile(filename)
+                file_obj = aq_base(self.data)
+                if hasattr(file_obj, 'data'):
+                    filename, remove_after = utility.createTempFile(file_obj.data)
+                    file_obj.content_type = magicfile.magic(filename)
+                    utility.removeTempFile(filename, remove_after)
 
     def storeContentType(self, content_type):
         "store the content type for to this object"
@@ -194,7 +196,7 @@ class File(UserObject):
     def setFileSize(self):
         "Store the file size of this object"
         try:
-            fileSize = utility.fileSizeString(self.data.data)
+            fileSize = utility.fileSizeString(self.data.size)
             self.setObject('fileSize', fileSize)
         except AttributeError:
             pass
@@ -227,13 +229,14 @@ class File(UserObject):
     security.declarePrivate("PrincipiaSearchSource")
     def PrincipiaSearchSource(self):
         "This is the basic search function"
-        object = self.data
+        obj = self.data
         search = [self.title, self.filename]
-        if self.exists() and not self.fileUrl and object.content_type.count("text"):
-            search.append(object.data)
-            return ' '.join(search)
-        else:
-            return ' '.join(search)
+        if self.exists() and not self.fileUrl and obj.content_type.count("text"):
+            if isinstance(obj.data, ZODB.blob.Blob):
+                search.append(obj.data.open('r').read())
+            else:
+                search.append(str(obj.data))
+        return ' '.join(search)
 
     security.declarePrivate('dataLoader')
     def dataLoader(self, dict):
