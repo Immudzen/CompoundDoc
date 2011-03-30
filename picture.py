@@ -95,7 +95,7 @@ class Picture(BasePicture):
 
         if dict.get('data', None):  #don't process if data does not have anything in it
             temp = OFS.Image.Image('data',self.getId(),dict['data'])
-            filename = utility.createTempFile(temp.data)
+            filename, remove_after = utility.createTempFile(temp.data)
             content_type = magicfile.magic(filename)
             if content_type.startswith('image'):
                 if self.getConfig('resizeOnUpload'):
@@ -108,7 +108,7 @@ class Picture(BasePicture):
                 self.makeThumbnail(filename)
                 self.setFileSize()
                 self.storeContentType(content_type)
-            utility.removeTempFile(filename)    
+            utility.removeTempFile(filename, remove_after)    
         try:
             del dict['data']
         except KeyError:
@@ -150,7 +150,7 @@ class Picture(BasePicture):
     def resaveExistingImage(self):
         "reisze existing images"
         if self.exists():
-            filename = utility.createTempFile(self.data.data)
+            filename, remove_after = utility.createTempFile(self.data.data)
             content_type = magicfile.magic(filename)
             if content_type.startswith('image'):
                 if self.getConfig('resaveOnUpload'):
@@ -166,13 +166,13 @@ class Picture(BasePicture):
                         content_type = magicfile.magic(filename)
                         self.setFileSize()
                         self.storeContentType(content_type)
-            utility.removeTempFile(filename) 
+            utility.removeTempFile(filename, remove_after) 
 
     security.declareProtected('Change CompoundDoc', 'resizeExistingImage')
     def resizeExistingImage(self):
         "reisze existing images"
         if self.exists():
-            filename = utility.createTempFile(self.data.data)
+            filename, remove_after = utility.createTempFile(self.data.data)
             content_type = magicfile.magic(filename)
             if content_type.startswith('image'):
                 if self.getConfig('resizeOnUpload'):
@@ -184,7 +184,7 @@ class Picture(BasePicture):
                     self.setFileSize()
                     self.storeContentType(content_type)
                     self.updateImageSrcCache()
-            utility.removeTempFile(filename)  
+            utility.removeTempFile(filename, remove_after)  
 
     security.declareProtected('Change CompoundDoc', 'updateImageSrcCache')
     def updateImageSrcCache(self):
