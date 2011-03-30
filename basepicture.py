@@ -119,12 +119,12 @@ class BasePicture(File):
     security.declarePrivate('small')
     def small(self):
         "Draw a small version of the object"
-        if self.exists() and self.thumbnail is None:
-            filename = utility.createTempFile(self.data)
+        if self.exists() and self.thumbnail is None:            
+            filename, remove_after = utility.createTempFile(self.data.data)
             content_type = magicfile.magic(filename)
             if content_type.startswith('image'):
                 self.makeThumbnail(filename)
-            utility.removeTempFile(filename)
+            utility.removeTempFile(filename, remove_after)
 
         if self.exists() and self.hasObject('thumbnail'):
             decode = {'url': self.thumbnail.absolute_url_path(),
