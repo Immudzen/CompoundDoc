@@ -22,6 +22,8 @@ from PIL import ImageFile
 import PIL
 ImageFile.MAXBLOCK = 5*1024*1024 #5 megs
 
+import ZODB.blob
+
 def isStringLike(data):
     "check if this item is string like go this from the python cookbook reformatted it and also made it just catch known errors"
     return __builtin__.isinstance(data, basestring)
@@ -193,13 +195,19 @@ def upgradeLimit(f, version):
     
 def createTempFile(data):
     "create a temp file with this data and return the filename"
+    if isinstance(data, ZODB.blob.Blob):
+        filename = data.open('r').name
+        remove_after = 0
+        return filename, remove_after
     filename = tempfile.mktemp()
     open(filename, 'w').write(str(data))
-    return filename
+    remove_after = 1
+    return filename, remove_after
     
-def removeTempFile(filename):
+def removeTempFile(filename, remove_after):
     "remove this temp file"
-    os.remove(filename)
+    if remove_after:
+        os.remove(filename)
 
 def saveImage(pilImage, format):
     "saves the image via the filesystem since StringIO causes errors sometimes"
@@ -316,9 +324,8 @@ def dictInQuery(queryDict, query):
             return False
     return True
             
-def fileSizeString(data):
+def fileSizeString(size):
     "return a string that has the file size"
-    size = len(data)
     unit = "B"
     MB = 1048576.0
     KB = 1024.0
