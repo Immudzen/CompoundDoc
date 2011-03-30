@@ -138,7 +138,7 @@ class ImageFilter(BasePicture):
     security.declarePrivate('generateImage')
     def generateImage(self, pic):
         "generate an image and thumbnail based on this data"
-        filename, remove_after = utility.createTempFile(pic.data)
+        filename, remove_after = utility.createTempFile(pic.data.data)
         content_type = magicfile.magic(filename)
         if content_type.startswith('image'):
             self.genImage(filename)
