@@ -58,7 +58,7 @@ class ImageFilter(BasePicture):
     def setFileSize(self):
         "Store the file size of this object"
         try:
-            fileSize = utility.fileSizeString(self.image.data)
+            fileSize = utility.fileSizeString(self.image.size)
             self.setObject('fileSize', fileSize)
         except AttributeError:
             pass
@@ -118,7 +118,7 @@ class ImageFilter(BasePicture):
     def resaveExistingImage(self):
         "reisze existing images"
         if self.exists():
-            filename = utility.createTempFile(self.image.data)
+            filename, remove_after = utility.createTempFile(self.image.data)
             content_type = magicfile.magic(filename)
             if content_type.startswith('image'):
                 temp = utility.resaveExistingImage(filename, 'image')
@@ -133,22 +133,22 @@ class ImageFilter(BasePicture):
                     content_type = magicfile.magic(filename)
                     self.setFileSize()
                     self.image.content_type = content_type
-            utility.removeTempFile(filename)
+            utility.removeTempFile(filename, remove_after)
 
     security.declarePrivate('generateImage')
     def generateImage(self, pic):
         "generate an image and thumbnail based on this data"
-        filename = utility.createTempFile(str(pic.data.data))
+        filename, remove_after = utility.createTempFile(pic.data)
         content_type = magicfile.magic(filename)
         if content_type.startswith('image'):
             self.genImage(filename)
-        utility.removeTempFile(filename)
+        utility.removeTempFile(filename, remove_after)
 
-        filename = utility.createTempFile(str(self.image.data))
+        filename, remove_after = utility.createTempFile(self.image.data)
         content_type = magicfile.magic(filename)
         if content_type.startswith('image'):
             self.makeThumbnail(filename)
-        utility.removeTempFile(filename)
+        utility.removeTempFile(filename, remove_after)
         self.updateImageSrcCache(pic)
 
     security.declarePrivate('updateImageSrcCache')
