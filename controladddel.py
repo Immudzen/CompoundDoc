@@ -16,8 +16,25 @@ class ControlAddDel(ControlBase):
 
     security.declareProtected('View management screens', 'edit')
     def edit(self, *args, **kw):
-        "Inline edit short object"
-        format = '<div class=""><div>%s</div><div style="position:absolute; left:20em; top:0">%s</div></div>'
+        "Inline edit short object"       
+        tab_format = '<div id="%s">%s</div>'
+        config_object = self.getConfigObject()
+        temp = []
+        if config_object is not None and config_object is not self:
+            temp.append('<div id="control_tabs">')
+            temp.append('<ul><li><a href="#Local">Local</a></li><li><a href="#Config">Config</a></li></ul>')
+            temp.append(tab_format % ('Local', self.edit_add_del()))
+            temp.append(tab_format % ('Config', config_object.edit_add_del()))
+            temp.append('</div>')
+        else:
+            temp.append(self.edit_add_del())
+            temp.append('<div>%s</div>' % self.submitChanges())
+        return ''.join(temp)
+
+    security.declareProtected('View management screens', 'edit_add_del')
+    def edit_add_del(self):
+        "return an edit interface for adding and removing files"
+        format = '<table class="vertical-align:top;"><tr><td>%s</td><td>%s</td></tr></table>'
         return format % (self.addObjectsEdit(), self.deleteObjectsEdit())
           
     security.declarePrivate('deleteObjectsEdit')
