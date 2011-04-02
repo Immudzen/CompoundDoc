@@ -113,7 +113,7 @@ class Selection(UserObject):
         "process the edits"
         clear = dict.pop('clear', None)
         if clear is not None:
-            self.setObject('data', None)
+            self.clear()
             try:
                 del dict['data']
             except KeyError:
