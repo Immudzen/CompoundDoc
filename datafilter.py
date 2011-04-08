@@ -147,7 +147,11 @@ class DataFilter(UserObject):
             else:
                 recordsGen = records.items(start, stop)
         else:
-            recordsGen = ( (name,value) for name, value in records.items(start, stop)[sliceStart:sliceStop] if name in allowed)
+            if sliceStart is not None and sliceStop is not None:
+                recordsGen = ( (name,value) for name, value in records.items(start, stop)[sliceStart:sliceStop] if name in allowed)
+            else:
+                recordsGen = ( (name,value) for name, value in records.items(start, stop) if name in allowed)
+            
         
         if recordsGen is not None:
             for key,record in utility.subTransDeactivateKeyValue(recordsGen,  100, self.getPhysicalRoot()._p_jar.cacheGC):
