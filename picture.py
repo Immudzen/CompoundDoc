@@ -105,7 +105,7 @@ class Picture(BasePicture):
                     if resaved is not None:
                         temp = resaved
                 self.setObject('data', temp)
-                self.makeThumbnail(filename)
+                self.makeThumbnail()
                 self.setFileSize()
                 self.storeContentType(content_type)
             utility.removeTempFile(filename, remove_after)    
@@ -180,7 +180,7 @@ class Picture(BasePicture):
                     self.setObject('data', temp)
                     #have to redo the content_type after we modify the image in case it has changed
                     content_type = magicfile.magic(filename)
-                    self.makeThumbnail(filename)
+                    self.makeThumbnail()
                     self.setFileSize()
                     self.storeContentType(content_type)
                     self.updateImageSrcCache()
@@ -214,7 +214,7 @@ class Picture(BasePicture):
         parent = parent or self.getCompoundDocContainer()
         if self.exists():
             decode = {}
-            decode['url'] = self.absolute_url_path()
+            decode['url'] = self.absolute_url_path_extension()
             decode['additionalAttributes'] = additionalAttributes
             image = self.imagesrc % decode
 
