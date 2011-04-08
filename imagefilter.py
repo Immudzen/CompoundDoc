@@ -143,13 +143,7 @@ class ImageFilter(BasePicture):
         if content_type.startswith('image'):
             self.genImage(filename)
         utility.removeTempFile(filename, remove_after)
-
-        filename, remove_after = utility.createTempFile(self.image.data)
-        content_type = magicfile.magic(filename)
-        if content_type.startswith('image'):
-            self.makeThumbnail(filename)
-        utility.removeTempFile(filename, remove_after)
-        self.updateImageSrcCache(pic)
+        self.makeThumbnail()
 
     security.declarePrivate('updateImageSrcCache')
     def updateImageSrcCache(self,  remote=None):
@@ -223,7 +217,7 @@ class ImageFilter(BasePicture):
             imagesrc = self.imagesrc
             if not imagesrc:
                 imagesrc = self.updateImageSrcCache()
-            decode = {'url': self.image.absolute_url_path(), 'additionalAttributes':additionalAttributes}
+            decode = {'url': self.absolute_url_path_extension(), 'additionalAttributes':additionalAttributes}
             image = self.imagesrc % decode
 
             href = None
