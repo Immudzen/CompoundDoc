@@ -21,6 +21,8 @@ def drawNestedList(seq, containerClasses='', **kw):
     "draw the nested list object and render it to a string"
     format = ['<a href="%s%s" class="item%s %s" %s>%s</a>', 
               '<a href="%s%s" class="highLight item%s %s" %s>%s</a>']
+    formatUrlNone = ['<span class="item%s %s" %s>%s</span>', 
+              '<span class="highLight item%s %s" %s>%s</span>']
     temp = []
     length = len(seq)
     if not length:
@@ -32,7 +34,10 @@ def drawNestedList(seq, containerClasses='', **kw):
             url,link,selected,cssClasses,queryDict,otherAttributes = item
                 
             query = createQuery(queryDict)
-            temp.append(format[selected] % (url,query, position, cssClasses, otherAttributes, link))
+            if url is None:
+                temp.append(formatUrlNone[selected] % (position, cssClasses, otherAttributes, link))
+            else:
+                temp.append(format[selected] % (url,query, position, cssClasses, otherAttributes, link))
             position += 1
         elif isinstance(item, types.StringType):
             temp.append('<li>')
@@ -53,6 +58,7 @@ def drawNestedList(seq, containerClasses='', **kw):
 def drawNestedListThemeroller(seq, containerClasses='', **kw):
     "draw the nested list object and render it to a string"
     format = '<a href="%s%s" class="item%s %s" %s>%s</a>'
+    formatUrlNone = '<span class="item%s %s" %s>%s</span>'
     themeroller_li = ['ui-state-default ui-corner-top', 'ui-state-default ui-corner-top ui-tabs-selected ui-state-active']
     temp = []
     length = len(seq)
@@ -65,7 +71,10 @@ def drawNestedListThemeroller(seq, containerClasses='', **kw):
             temp.append('<li class="%s">' % themeroller_li[selected])
                 
             query = createQuery(queryDict)
-            temp.append(format % (url,query, position, cssClasses, otherAttributes, link))
+            if url is None:
+                temp.append(formatUrlNone % (position, cssClasses, otherAttributes, link))
+            else:
+                temp.append(format % (url,query, position, cssClasses, otherAttributes, link))
             position += 1
         elif isinstance(item, types.StringType):
             temp.append('<li>')
@@ -86,6 +95,7 @@ def drawNestedListThemeroller(seq, containerClasses='', **kw):
 def drawThemerollerTabs(seq, containerClasses='', **kw):
     "draw the nested list object and render it to a string"
     format = '<a href="%s%s" class="item%s %s" %s>%s</a>'
+    formatUrlNone = '<span class="item%s %s" %s>%s</span>'
     jUI_li_tab = ['ui-state-default ui-corner-top', 'ui-state-default ui-corner-top ui-tabs-selected ui-state-active']
     temp = []
     length = len(seq)
@@ -98,7 +108,10 @@ def drawThemerollerTabs(seq, containerClasses='', **kw):
             temp.append('<li class="%s">' % jUI_li_tab[selected])
                             
             query = createQuery(queryDict)
-            temp.append(format % (url,query, position, cssClasses, otherAttributes, link))
+            if url is None:
+                temp.append(formatUrlNone % (position, cssClasses, otherAttributes, link))
+            else:
+                temp.append(format % (url,query, position, cssClasses, otherAttributes, link))
             position += 1
         elif isinstance(item, types.StringType):
             temp.append('<li>')
@@ -120,6 +133,8 @@ def drawNestedListHorizontal(seq, level=1, containerClasses='', **kw):
     "draw the nested list object and render it to a string"
     format = ['<a href="%s%s" class="item%s %s" %s>%s</a>', 
               '<a href="%s%s" class="highLight item%s %s" %s>%s</a>']
+    formatUrlNone = ['<span class="item%s %s" %s>%s</span>', 
+              '<span class="highLight item%s %s" %s>%s</span>']
     temp = []
     end = []
     if not len(seq):
@@ -130,7 +145,10 @@ def drawNestedListHorizontal(seq, level=1, containerClasses='', **kw):
             url,link,selected,cssClasses,queryDict,otherAttributes = item
                 
             query = createQuery(queryDict)
-            temp.append(format[selected] % (url,query, position, cssClasses, otherAttributes, link))
+            if url is None:
+                temp.append(formatUrlNone[selected] % (position, cssClasses, otherAttributes, link))
+            else:
+                temp.append(format[selected] % (url,query, position, cssClasses, otherAttributes, link))
             position += 1
         elif isinstance(item, types.StringType):
             temp.append(item)
@@ -152,6 +170,8 @@ def drawNestedListHorizontalSpan(seq, level=1, containerClasses='', **kw):
     spanEnd = '</span>'
     format = ['<a href="%s%s" class="item%s %s" %s>%s</a>', 
               '<a href="%s%s" class="highLight item%s %s" %s>%s</a>']
+    formatUrlNone = ['<span class="item%s %s" %s>%s</span>', 
+              '<span class="highLight item%s %s" %s>%s</span>']
     temp = []
     end = []
     if not len(seq):
@@ -162,7 +182,10 @@ def drawNestedListHorizontalSpan(seq, level=1, containerClasses='', **kw):
             url,link,selected,cssClasses,queryDict,otherAttributes = item
                 
             query = createQuery(queryDict)
-            temp.extend([spanBegin, format[selected] % (url,query, position, cssClasses, otherAttributes, link), spanEnd])
+            if url is None:
+                temp.extend([spanBegin, formatUrlNone[selected] % (position, cssClasses, otherAttributes, link), spanEnd])
+            else:
+                temp.extend([spanBegin, format[selected] % (url,query, position, cssClasses, otherAttributes, link), spanEnd])
             position += 1
         elif isinstance(item, types.StringType):
             temp.extend([spanBegin, item, spanEnd])
@@ -184,6 +207,8 @@ def roundedCorners(seq, level=1, containerClasses='', **kw):
     divEnd = '</div></div><div class="foot"><div class="c"></div></div></div>'
     format = ['<a href="%s%s" class="item%s %s" %s>%s</a>',
               '<a href="%s%s" class="highLight item%s %s" %s>%s</a>']
+    formatUrlNone = ['<span class="item%s %s" %s>%s</span>', 
+              '<span class="highLight item%s %s" %s>%s</span>']
     temp = []
     end = []
     if not len(seq):
@@ -194,7 +219,10 @@ def roundedCorners(seq, level=1, containerClasses='', **kw):
             url,link,selected,cssClasses,queryDict,otherAttributes = item
                 
             query = createQuery(queryDict)
-            temp.extend([divBegin % position, format[selected] % (url,query, position, cssClasses, otherAttributes, link), divEnd])
+            if url is None:
+                temp.extend([divBegin % position, formatUrlNone[selected] % (position, cssClasses, otherAttributes, link), divEnd])
+            else:
+                temp.extend([divBegin % position, format[selected] % (url,query, position, cssClasses, otherAttributes, link), divEnd])
             position += 1
         elif isinstance(item, types.StringType):
             temp.extend([divBegin % position, item, divEnd])
@@ -218,6 +246,8 @@ def roundedCornersTable(seq, level=1, containerClasses='', **kw):
     <tr><td class="bottomLeft">&nbsp;</td><td class="bottomCenter">&nbsp;</td><td class="bottomRight">&nbsp;</td></tr></table>'''
     format = ['<a href="%s%s" class="item%s %s" %s>%s</a>',
               '<a href="%s%s" class="highLight item%s %s" %s>%s</a>']
+    formatUrlNone = ['<span class="item%s %s" %s>%s</span>', 
+              '<span class="highLight item%s %s" %s>%s</span>']
 
     temp = []
     end = []
@@ -229,7 +259,10 @@ def roundedCornersTable(seq, level=1, containerClasses='', **kw):
             url,link,selected,cssClasses,queryDict,otherAttributes = item
                 
             query = createQuery(queryDict)
-            temp.extend([tableBegin % position, format[selected] % (url,query, position, cssClasses, otherAttributes, link), tableEnd])
+            if url is None:
+                temp.extend([tableBegin % position, formatUrlNone[selected] % (position, cssClasses, otherAttributes, link), tableEnd])
+            else:
+                temp.extend([tableBegin % position, format[selected] % (url,query, position, cssClasses, otherAttributes, link), tableEnd])
             position += 1
         elif isinstance(item, types.StringType):
             temp.extend([tableBegin % position, item, tableEnd])
@@ -249,6 +282,8 @@ def drawNestedListTable(seq, level=1, columns=None, containerClasses='', **kw):
     "draw the nested list object and render it to a string"
     format = ['<a href="%s%s" class="item%s %s" %s>%s</a>', 
               '<a href="%s%s" class="highLight item%s %s" %s>%s</a>']
+    formatUrlNone = ['<span class="item%s %s" %s>%s</span>', 
+              '<span class="highLight item%s %s" %s>%s</span>']
     temp = []
     end = []
     if columns == 0:
@@ -261,7 +296,10 @@ def drawNestedListTable(seq, level=1, columns=None, containerClasses='', **kw):
             url,link,selected,cssClasses,queryDict,otherAttributes = item
                 
             query = createQuery(queryDict)
-            temp.append(format[selected] % (url,query,position, cssClasses, otherAttributes, link))
+            if url is None:
+                temp.append(formatUrlNone[selected] % (position, cssClasses, otherAttributes, link))
+            else:
+                temp.append(format[selected] % (url,query, position, cssClasses, otherAttributes, link))
             position += 1
         elif isinstance(item, types.StringType):
             temp.append(item)
@@ -291,6 +329,8 @@ def drawRoundedTableGrid(seq, level=1, columns=None, containerClasses='', **kw):
     
     format = ['<a href="%s%s" class="item%s %s" %s>%s</a>', 
               '<a href="%s%s" class="highLight item%s %s" %s>%s</a>']
+    formatUrlNone = ['<span class="item%s %s" %s>%s</span>', 
+              '<span class="highLight item%s %s" %s>%s</span>']
     temp = []
     end = []
     if columns == 0:
@@ -309,7 +349,10 @@ def drawRoundedTableGrid(seq, level=1, columns=None, containerClasses='', **kw):
             url,link,selected,cssClasses,queryDict,otherAttributes = item
                 
             query = createQuery(queryDict)
-            temp.append(format[selected] % (url,query,position, cssClasses, otherAttributes, link))
+            if url is None:
+                temp.append(formatUrlNone[selected] % (position, cssClasses, otherAttributes, link))
+            else:
+                temp.append(format[selected] % (url,query, position, cssClasses, otherAttributes, link))
             position += 1
         elif isinstance(item, types.StringType):
             temp.append(item)
