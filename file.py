@@ -66,6 +66,10 @@ class File(UserObject):
     security.declarePublic("__bobo_traverse__")
     def __bobo_traverse__(self, REQUEST, name):
         "__bobo_traverse__"
+        if name.startswith('ver_'):
+            name = self.REQUEST.TraversalRequestNameStack.pop()
+            self.REQUEST.RESPONSE.setHeader('Cache-Control', 'max-age=315360000')
+            self.REQUEST.RESPONSE.setHeader('Expires', 'Thu, 01 Dec 2030 12:00:0')
         extensions = []
         if self.getConfig('urlExtension'):
             extensions = self.getConfig('urlExtension')
@@ -179,18 +183,21 @@ class File(UserObject):
     security.declareProtected('View', 'getUrlWithExtension')
     def getUrlWithExtension(self, extension='', disableExtension=None):
         "process for a url extension and make sure it goes to a valid location otherwise just give back our current url"
-        url = os.path.join(self.absolute_url_path(), self.filename)
         urlExtension = self.getConfig('urlExtension')
         if urlExtension and not (extension and extension in urlExtension):
             extension = urlExtension[0]
         if extension and not disableExtension:
             try:
                 self.getCompoundDocContainer().restrictedTraverse(extension)
-                return urllib.quote(os.path.join(url, extension))
+                return urllib.quote(os.path.join(self.absolute_url_path(), self.filename, extension))
             except KeyError:
-                return urllib.quote(url)
+                pass
+
+        if self.fileUrl:
+            return urllib.quote(self.fileUrl)
         else:
-            return self.fileUrl or urllib.quote(url)
+            version = 'ver_%s' % int(self.data.bobobase_modification_time().timeTime())
+            return os.path.join(self.absolute_url_path(), version, urllib.quote(self.filename))
 
     security.declarePrivate('setFileSize')
     def setFileSize(self):
@@ -218,7 +225,8 @@ class File(UserObject):
                 fileType = ''
                 fileSize = ''
             else:
-                url = os.path.join(self.absolute_url_path(), urllib.quote(self.filename))
+                version = 'ver_%s' % int(self.data.bobobase_modification_time().timeTime())
+                url = os.path.join(self.absolute_url_path(), version, urllib.quote(self.filename))
                 fileType = self.data.content_type
                 fileSize = self.getFileSize()
             title = self.title
