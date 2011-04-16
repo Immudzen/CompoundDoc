@@ -25,11 +25,11 @@ class ControlProfileManager(ControlBase):
         temp.append('<div>')
         if self.profile:
             temp.append(self.clearProfile())
-        if not hasattr(self, 'masterLocation') or hasattr(self, 'masterLocation') and self.masterLocation != self.getCompoundDoc().getPath():
+        if self.masterLocation is None or self.masterLocation and self.masterLocation != self.getCompoundDoc().getPath():
             temp.append('<p>')
             temp.append(self.create_button('master', 'Master Profile Set'))
             temp.append('</p>')
-        if hasattr(self, 'masterLocation'):
+        if self.masterLocation is not None:
             temp.append('<p>')
             temp.append(self.create_button('unsetMaster', 'Unset the master'))
             temp.append('</p>')
