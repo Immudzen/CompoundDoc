@@ -86,7 +86,7 @@ def cleanEncodingSeq(seq):
     output = []
     
     for item in seq:
-        if isinstance(item, basestring):
+        if __builtin__.isinstance(item, basestring):
             detect.append(item)
     
     encoding = chardet.detect(' '.join(detect))['encoding']
@@ -195,7 +195,7 @@ def upgradeLimit(f, version):
     
 def createTempFile(data):
     "create a temp file with this data and return the filename"
-    if isinstance(data, ZODB.blob.Blob):
+    if __builtin__.isinstance(data, ZODB.blob.Blob):
         filename = data.open('r').name
         remove_after = 0
         return filename, remove_after
@@ -376,7 +376,7 @@ def you_rang():
 def mergeSequenceTree(sequence):
     "Merge this sequence into a tree and make it into a dict"
     temp = {}
-    if isinstance(sequence, types.TupleType) or isinstance(sequence, types.ListType):
+    if __builtin__.isinstance(sequence, types.TupleType) or __builtin__.isinstance(sequence, types.ListType):
         for i in sequence:
             locator = temp
             for j in i:
