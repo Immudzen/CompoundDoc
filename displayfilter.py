@@ -35,10 +35,12 @@ class DisplayFilter(base.Base):
     security.declareProtected('View', 'view')
     def view(self):
         "Inline draw view"
-        if self.codetype in ('DTML','Static'):
+        if self.codetype == 'DTML':
+            return self.getCompoundDoc().gen_html(self.code)
+        elif self.codetype == 'Static':
             return self.code
         elif self.codetype =='PythonScript':
-            return self.codeScript
+            return self.codeScript.__of__(self.getCompoundDoc())()
         return ''
 
     security.declareProtected('View management screens', 'edit')
@@ -104,7 +106,7 @@ class DisplayFilter(base.Base):
         if self.codetype == 'PythonScript' and self.wrapperFooterScript:
             temp.append(self.drawScriptErrorsAndWarnings(self.wrapperFooterScript))
         temp.append('<p>Footer:</p>%s' % self.input_text('wrapperFooter', self.wrapperFooter))
-        temp.append(self.UserAgent.short())
+        temp.append(self.UserAgent.edit())
         temp.append('</div>')
         return ''.join(temp)
 
