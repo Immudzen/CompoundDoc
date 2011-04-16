@@ -139,7 +139,7 @@ class MixUpgrader(BaseObject):
     def undoMasterSharing(self):
         "copy the remove shared objects locally since we are not a master document"
         if self.meta_type == 'CompoundDoc':
-            if hasattr(self, 'masterLocation'):
+            if self.masterLocation is not None:
                 if self.masterLocation != self.getPath():
                     master = self.unrestrictedTraverse(self.masterLocation, None)
                     if master is not None and master.meta_type == 'CompoundDoc':
