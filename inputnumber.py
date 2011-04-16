@@ -18,6 +18,8 @@ class InputNumber(UserObject):
 
     meta_type = "InputNumber"
     security = ClassSecurityInfo()
+    data = 0.0
+    calculated = None
 
     security.declareProtected("Access contents information", "float")
     def float(self):
