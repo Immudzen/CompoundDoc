@@ -33,7 +33,7 @@ class ControlShared(ControlBase):
         "check if this item is sharing with its master profile if it has one"
         temp = []
         cdoc = self.getCompoundDoc()
-        if hasattr(cdoc, 'masterLocation'):
+        if cdoc.masterLocation is not None:
             if cdoc.masterLocation != cdoc.getPath():
                 master = self.unrestrictedTraverse(cdoc.masterLocation, None)
                 if master is not None and master.meta_type == 'CompoundDoc':
