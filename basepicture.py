@@ -30,6 +30,10 @@ class BasePicture(File):
     width = 0
     height = 0
     scriptChangePath = ''
+    crop_left = 0
+    crop_upper =  0
+    crop_right =  0
+    crop_lower = 0
     
     imageFormat = {'BMP' : 'Bitmap', 'PNG' : "PNG", "GIF" : "GIF", "JPEG" : "JPEG", "TIFF" : "TIFF"}
     formats = sorted(imageFormat.iteritems())
@@ -40,6 +44,10 @@ class BasePicture(File):
     classConfig = {}
     classConfig['width'] = {'name':'Suggested Width of Image:', 'type': 'int'}
     classConfig['height'] = {'name':'Suggested Height of Image:', 'type': 'int'}
+    classConfig['crop_left'] = {'name':'Crop position left:', 'type': 'int'}
+    classConfig['crop_upper'] = {'name':'Crop position up:', 'type': 'int'}
+    classConfig['crop_right'] = {'name':'Crop position right:', 'type': 'int'}
+    classConfig['crop_lower'] = {'name':'Crop position lower:', 'type': 'int'}
     classConfig['format'] = {'name':'', 'type':'list', 'values': formats}
     classConfig['color'] = {'name':'', 'type':'list', 'values': colors}
     classConfig['scriptChangePath'] = {'name':'Path to change notification script', 'type': 'path'}
