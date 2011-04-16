@@ -128,6 +128,12 @@ class Picture(BasePicture):
             image=image.convert(self.getConfig('color'))
         maxWidth = self.getConfig('width')
         maxHeight = self.getConfig('height')
+        crop_left = self.getConfig('crop_left')
+        crop_upper =  self.getConfig('crop_upper')
+        crop_right =  self.getConfig('crop_right')
+        crop_lower = self.getConfig('crop_lower')
+        if crop_right and crop_lower:
+            image = image.crop((crop_left, crop_upper, crop_right, crop_lower))
         (x, y) = image.size
         if x> maxWidth:
             y = y * maxWidth / x
