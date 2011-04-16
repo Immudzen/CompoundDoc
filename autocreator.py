@@ -111,10 +111,10 @@ class AutoCreator(Base):
         cdocId = pathList.pop()
         cursor = container
         for name in pathList:
-            if not hasattr(aq_base(cursor), name):
+            if not cursor.hasObject(name):
                 cursor.manage_addProduct['OFSP'].manage_addFolder(name)
             cursor = getattr(cursor, name)
-        if not hasattr(aq_base(cursor), cdocId):
+        if not cursor.hasObject(cdocId):
             cdoc = cursor.manage_addProduct['CompoundDoc'].manage_addCompoundDoc(cdocId, profile=profile, redir=0, returnObject=1)
         else:
             cdoc = getattr(cursor, cdocId)
