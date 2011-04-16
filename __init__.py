@@ -12,7 +12,7 @@ def initialize(context):
     "Initialize the CompoundDoc object."
     root = getattr(context, '_ProductContext__app')
 
-    if hasattr(root, 'CDocShared'):
+    if root is not None and root.hasObject('CDocShared'):
         root.manage_delObjects(['CDocShared'])
 
     context.registerClass(
