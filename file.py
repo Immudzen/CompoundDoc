@@ -50,10 +50,14 @@ class File(UserObject):
     security.declarePrivate('validate_filename')
     def validate_filename(self, value):
         "remove all leading and trailing whitespace"
+        temp = value
         try:
-            return value.strip()
+            temp = value.strip()
         except AttributeError:
-            return value
+            pass
+        if not temp:
+            temp = 'file'
+        return temp
 
     security.declarePrivate('validate_urlExtension')
     def validate_urlExtension(self, value):
@@ -262,6 +266,7 @@ class File(UserObject):
         self.removeAttributeText()
         self.changeUrlExtension()
         self.fixFileId()
+        self.fixBlankFileName()
 
     security.declarePrivate('updateTitle')
     def updateTitle(self):
@@ -331,7 +336,14 @@ class File(UserObject):
         "change urlExtension to a sequence"
         if self.data:
             self.data.__name__ = 'data'
-    fixFileId = utility.upgradeLimit(fixFileId, 152)    
+    fixFileId = utility.upgradeLimit(fixFileId, 152)  
+    
+    security.declarePrivate('fixBlankFileName')
+    def fixBlankFileName(self):
+        "change urlExtension to a sequence"
+        if not self.filename:
+            self.filename = 'file'
+    fixBlankFileName = utility.upgradeLimit(fixBlankFileName, 170)
 
             
 Globals.InitializeClass(File)
