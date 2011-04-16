@@ -50,21 +50,6 @@ class DisplayUserAgent(Base):
     security.declareProtected('View management screens', 'edit')
     def edit(self, *args, **kw):
         "Inline edit view"
-
-        temp = [self.short()]
-        temp.append('<p>Supported Clients:</p>%s<div>%s</div>' % (self.create_button('userAgentSelect', 'Unselect All'),
-          self.createMultiListDict(useragent.getAvailableClients(), self.getClients(), 'userAgent')))
-        format = '<p>Supported Operating Systems:</p><div>%s</div>'
-        allowedOS = [''] + list(useragent.UserAgent.getAllowedOperatingSystems)
-        os = []
-        if self.operatingSystems is not None:
-            os = self.operatingSystems
-        temp.append(format % self.option_select(allowedOS, 'operatingSystems', os, multiple=1, size=len(allowedOS)))
-        return ''.join(temp)
-
-    security.declarePrivate('short')
-    def short(self):
-        "short editing view for this object"
         return "<p>UserAgent Set : %s</p>\n" % self.option_select(self.clientSets(),
                 'setused', [self.setused])
 
