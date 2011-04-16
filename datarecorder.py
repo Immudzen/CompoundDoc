@@ -542,32 +542,31 @@ class DataRecorder(base.Base):
     security.declareProtected('Python Record Addition', 'addDictObject')
     def addDictObject(self, dict):
         "Add a dict like object and copy its contents into the records list update fileldMap also"
-        if hasattr(dict, 'items'):
-            temp = copy.deepcopy(dict)
-            
-            fieldList = self.fieldList
-            if fieldList is None:
-                fieldList = []
-            
-            for key in dict:
-                if key not in fieldList:
-                    fieldList.append(key)
-            if fieldList:
-                self.setObject('fieldList', fieldList)
-            if temp:
-                entryTime = time.time()
-                if self.records is None:
-                    self.setObject('records' ,BTrees.OOBTree.OOBTree())
-                if self.recordsLength is None:
-                    self.setObject('recordsLength' ,BTrees.Length.Length())
+        temp = copy.deepcopy(dict)
+        
+        fieldList = self.fieldList
+        if fieldList is None:
+            fieldList = []
+        
+        for key in dict:
+            if key not in fieldList:
+                fieldList.append(key)
+        if fieldList:
+            self.setObject('fieldList', fieldList)
+        if temp:
+            entryTime = time.time()
+            if self.records is None:
+                self.setObject('records' ,BTrees.OOBTree.OOBTree())
+            if self.recordsLength is None:
+                self.setObject('recordsLength' ,BTrees.Length.Length())
 
-                self.records[entryTime] = persistent.mapping.PersistentMapping(temp)
-                self.recordsLength.change(1)
-                catalog = self.getCatalog()
-                if catalog is not None:
-                    doc = Record(name=repr(entryTime), data=temp, script=self.getRecordScript(), parent=self).__of__(self)
-                    path = '/'.join([self.getPath(), repr(entryTime)])
-                    catalog.catalog_object(doc, uid=path)
+            self.records[entryTime] = persistent.mapping.PersistentMapping(temp)
+            self.recordsLength.change(1)
+            catalog = self.getCatalog()
+            if catalog is not None:
+                doc = Record(name=repr(entryTime), data=temp, script=self.getRecordScript(), parent=self).__of__(self)
+                path = '/'.join([self.getPath(), repr(entryTime)])
+                catalog.catalog_object(doc, uid=path)
 
 
     security.declareProtected('Python Record Access', 'getListDict')
