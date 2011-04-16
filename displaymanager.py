@@ -204,7 +204,7 @@ class DisplayManager(base.Base):
     def checkShared(self):
         "return true if we are in a shared object"
         cdoc = self.getCompoundDoc()
-        return hasattr(cdoc, 'masterLocation') and cdoc.masterLocation != cdoc.getPath()
+        return cdoc.masterLocation is not None and cdoc.masterLocation != cdoc.getPath()
                                         
 Globals.InitializeClass(DisplayManager)
 import register
