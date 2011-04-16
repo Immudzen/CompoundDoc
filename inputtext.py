@@ -37,7 +37,7 @@ class InputText(UserObject):
     security.declareProtected('View', 'view')
     def view(self):
         "Inline draw view"
-        return str(self.data)
+        return self.data
 
     security.declarePrivate('createDataLoader')
     def createDataLoader(self):
