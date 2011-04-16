@@ -41,7 +41,7 @@ class Base(baseobject.BaseObject,
   SimpleItem):
     "Abstract Base"
 
-    classVersion = 168  #run upgrader scripts 160
+    classVersion = 170  #run upgrader scripts 160
     classUpdateVersion = 122  #add attributes
     overwrite = 0
     updateAlways = 0
@@ -114,7 +114,7 @@ class Base(baseobject.BaseObject,
         "Custom tabs_path_default for creating the white on black interface"
         #All forms items that compounddoc has to process consists of absolute urls to the db
         #so if there are no / in the form keys then there is nothing to process
-        if self.REQUEST.form and not 'CompoundDocProcessed' in self.REQUEST.other and any(key.startswith('/') for key in self.REQUEST.form):
+        if self.REQUEST.form and not 'CompoundDocProcessed' in self.REQUEST.other:
             self.manage_edit()
             url = self.REQUEST.other.get('redirectTo', None)
             if url is not None:
@@ -306,10 +306,7 @@ class Base(baseobject.BaseObject,
     security.declarePublic('draw')
     def draw(self, renderType='view', **kw):
         "rendering dispatcher"
-        try:
-            renderName = self.drawDict[renderType]
-        except KeyError:
-            renderName = None
+        renderName = self.drawDict.get(renderType, None)
         if renderName is not None:
             render = self.restrictedTraverse(renderName, None)
             if render is not None:
