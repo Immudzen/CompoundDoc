@@ -130,7 +130,7 @@ class MixObjectLoadStore(BaseObject):
         "load another compounddoc rendering system into this compounddoc"
         replaceList = ['DisplayManager', 'displayMap', 'defaultDisplay']
 
-        if hasattr(cdoc, 'masterLocation'):
+        if cdoc.masterLocation is not None:
             if cdoc.masterLocation != self.getPath():
                 master = self.unrestrictedTraverse(cdoc.masterLocation, None)
                 if master is not None and master.meta_type == 'CompoundDoc' and master.DisplayManager is not None:
