@@ -214,9 +214,7 @@ class Date(UserObject):
     security.declareProtected('Access contents information', 'Date')
     def Date(self):
         "return the date object for this object"
-        object = self.data
-        if hasattr(object, 'Date'):
-            return object
+        return self.data if self.data != '' else None
         
     security.declarePrivate('editFormattedDate')
     def editFormattedDate(self, selectedFormat = None, yearOffSetBefore=None, yearOffSetAfter=None):
