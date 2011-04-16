@@ -290,41 +290,4 @@ class Widgets:
         "return a list that is formated for this many columns and fill it with the value in filler for extra"
         return utility.formatListForTable(seq, columns, filler)
 
-    security.declarePrivate('createMultiListDict')
-    def createMultiListDict(self, dict1, dict2, name, containers=None, size=10):
-        "Create a multiple column js based list element"
-        list1, list2, list3, list4 = self.listFromDict(dict1)
-        list5, list6, list7, list8 = self.listFromDict(dict2, 1)
-
-        return ''.join([self.multiselect(name, list1, list5, size=size, containers=containers),
-          self.multiselect(name, list2, list6, size=size, containers=containers),
-          self.multiselect(name, list3, list7, size=size, containers=containers),
-          self.multiselect(name, list4, list8, size=size, containers=containers)])
-
-    def listFromDict(self, dict, removeParentBlank=0):
-        "Create a list structure from this dict"
-        list1 = []
-        list2 = []
-        list3 = []
-        list4 = []
-        if hasattr(dict, 'keys'):
-            for i in dict:
-                list1.append(i)
-                for j in dict[i]:
-                    list2.append(' '.join([i, j]))
-                    for k in dict[i][j]:
-                        list3.append(' '.join([i, j, k]))
-                        for l in dict[i][j][k]:
-                            list4.append(' '.join([i, j, k, l]))
-                        if removeParentBlank:
-                            if '' not in dict[i][j][k]:
-                                list3.remove(' '.join([i, j, k]))
-                    if removeParentBlank:
-                        if '' not in dict[i][j]:
-                            list2.remove(' '.join([i, j]))
-                if removeParentBlank:
-                    if '' not in dict[i]:
-                        list1.remove(i)
-        return list1, list2, list3, list4
-
 Globals.InitializeClass(Widgets)
