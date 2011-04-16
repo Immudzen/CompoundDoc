@@ -192,6 +192,7 @@ class CompoundDoc(Base, OFS.History.Historical, CatalogAware, UserObject):
     cdocAutoAddTypes = ('timestamp', 'counter')
     renderScriptLookupPath = ''
     isConfigDoc = 0
+    masterLocation = None
 
     classConfig = {}
     classConfig['SSLRequired'] = {'name':'SSLRequired for access', 'type': 'radio'}
@@ -344,7 +345,7 @@ class CompoundDoc(Base, OFS.History.Historical, CatalogAware, UserObject):
     security.declarePrivate('resetMaster')
     def resetMaster(self):
         "copy the remove shared objects locally since we are not a master document"
-        masterLocation = getattr(self, 'masterLocation', None)
+        masterLocation = self.masterLocation
         if masterLocation is not None:
             cdoc = self.getCompoundDoc()
             if masterLocation != cdoc.getPath():
@@ -480,7 +481,7 @@ class CompoundDoc(Base, OFS.History.Historical, CatalogAware, UserObject):
         if hasattr(self, 'REQUEST'):
             #All forms items that compounddoc has to process consists of absolute urls to the db
             #so if there are no / in the form keys then there is nothing to process
-            if self.REQUEST.form and not 'CompoundDocProcessed' in self.REQUEST.other and any(key.startswith('/') for key in self.REQUEST.form):
+            if self.REQUEST.form and not 'CompoundDocProcessed' in self.REQUEST.other:
                 self.manage_edit()
                 url = self.REQUEST.other.get('redirectTo', None)
                 if url is not None:
@@ -506,7 +507,7 @@ class CompoundDoc(Base, OFS.History.Historical, CatalogAware, UserObject):
         "Basic View Alone"
         #All forms items that compounddoc has to process consists of absolute urls to the db
         #so if there are no / in the form keys then there is nothing to process
-        if self.REQUEST.form and not 'CompoundDocProcessed' in self.REQUEST.other and any(key.startswith('/') for key in self.REQUEST.form):
+        if self.REQUEST.form and not 'CompoundDocProcessed' in self.REQUEST.other:
             self.manage_edit()
             url = self.REQUEST.other.get('redirectTo', None)
             if url is not None:
@@ -609,7 +610,7 @@ class CompoundDoc(Base, OFS.History.Historical, CatalogAware, UserObject):
 
         if text is None:
             text = '<p>No Display Found</p>'
-        return self.gen_html(text)
+        return text
 
     security.declarePrivate('renderDisplay')
     def renderDisplay(self, purpose, display, showWrapper, *args, **kw):
@@ -624,21 +625,14 @@ class CompoundDoc(Base, OFS.History.Historical, CatalogAware, UserObject):
                 if configDoc is not None and configDoc.defaultDisplay is not None:
                     display = configDoc.defaultDisplay.get(purpose, None)
             
-            
         if display is not None:
             mapping = None
             if self.displayMap is not None:
-                try:
-                    mapping = self.displayMap[display]
-                except KeyError:
-                    pass
+                mapping = self.displayMap.get(display, None)
             if mapping is None:
-                configDoc = configDoc or self.getConfigDoc()
+                configDoc = configDoc if configDoc is not None else self.getConfigDoc()
                 if configDoc is not  None:
-                    try:
-                        mapping = configDoc.displayMap[display]
-                    except KeyError:
-                        pass    
+                    mapping = configDoc.displayMap.get(display, None)
             if mapping is not None:
                 if showWrapper:
                     self.setRenderREQUEST(display, mapping[0], mapping[2])
@@ -713,14 +707,15 @@ class CompoundDoc(Base, OFS.History.Historical, CatalogAware, UserObject):
         
     security.declareProtected('Change CompoundDoc', 'manage_edit')
     def manage_edit(self, RESPONSE=None, dict=None):
-        "Process edits"
-        form = self.getCorrectForm(dict)
+        "Process edits"        
         self.REQUEST.other['CompoundDocProcessed'] = 1 #This is done first to prevent recursion
-        #Once one compounddoc is dispatching to others for what needs to be saved no further
-        #attempts to do this should be done
-        self.REQUEST.form = form
-        self.processRemoteEdits(form)
-        self.processChanges()
+        if any(key.startswith('/') for key in self.REQUEST.form):
+            form = self.getCorrectForm(dict)
+            #Once one compounddoc is dispatching to others for what needs to be saved no further
+            #attempts to do this should be done
+            self.REQUEST.form = form
+            self.processRemoteEdits(form)
+            self.processChanges()
 
     security.declareProtected('Change CompoundDoc', 'processChanges')
     def processChanges(self):
@@ -842,16 +837,11 @@ class CompoundDoc(Base, OFS.History.Historical, CatalogAware, UserObject):
         objects = (str(i.PrincipiaSearchSource()) for i in objects)
         return ' '.join(list(objects))
 
-    #hidden objects are those objects that should not be shown or be removeable
-    __hidden = ['Cache', 'CSVDataFilter', 'Calculator', 'CatalogConfig', 'Config',
-      'Display', 'DisplayFilter', 'DisplayUserAgent', 'HTMLDataFilter', 'SeperatorDataFilter']
-
     security.declarePrivate('noremove')
     def noremove(self):
         "return a list of the items that should not be removed"
-        if hasattr(self, 'profileNoremove'):
-            return self.__hidden + self.profileNoremove
-        return self.__hidden
+        return ['Cache', 'CSVDataFilter', 'Calculator', 'CatalogConfig', 'Config',
+            'Display', 'DisplayFilter', 'DisplayUserAgent', 'HTMLDataFilter', 'SeperatorDataFilter']
 
     security.declareProtected('CompoundDoc: Indexing', 'index_object')
     def index_object(self):
@@ -1160,15 +1150,19 @@ class CompoundDoc(Base, OFS.History.Historical, CatalogAware, UserObject):
             write('%s (%s)\n' % (record.getPath(), record.objectVersion))
             try:
                 cdoc = record.getObject()
-                if hasattr(cdoc, 'upgradeAll'):
-                    cdoc.upgradeAll()
-                    catalog.catalog_object(cdoc)
-                    cdoc._p_deactivate()
-                else:
-                    removeRecordFromCatalog(catalog, record)                
-                self._p_jar.cacheGC()
-            except (zExceptions.Unauthorized, zExceptions.NotFound, KeyError, IndexError):
-                pass
+                cdoc_upgradeAll = cdoc.upgradeAll
+            except (zExceptions.Unauthorized, zExceptions.NotFound, KeyError, IndexError, AttributeError):
+                cdoc = None
+                cdoc_upgradeAll = None
+                
+            if cdoc is not None and cdoc_upgradeAll is not None:
+                cdoc_upgradeAll()
+                catalog.catalog_object(cdoc)
+                cdoc._p_deactivate()
+            else:
+                removeRecordFromCatalog(catalog, record)                
+            self._p_jar.cacheGC()
+ 
         write('Done')
 
     security.declarePrivate('getUpgradeableRecords')
