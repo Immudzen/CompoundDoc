@@ -142,6 +142,7 @@ class ImageFilter(BasePicture):
         content_type = magicfile.magic(filename)
         if content_type.startswith('image'):
             self.genImage(filename)
+            self.updateImageSrcCache()
         utility.removeTempFile(filename, remove_after)
         self.makeThumbnail()
 
@@ -211,7 +212,7 @@ class ImageFilter(BasePicture):
         self.setFileSize()
 
     security.declareProtected('View', 'view')
-    def view(self, urlCallable=None, parent=None, additionalAttributes=''):
+    def view(self, urlCallable=None, parent=None, additionalAttributes='', drawHref=1):
         "Render page"
         remote = self.getRemoteImage()
         parent = parent or remote
@@ -234,7 +235,7 @@ class ImageFilter(BasePicture):
                 if item is not None:
                     href = item.absolute_url_path()
                     
-            if href is not None:
+            if href is not None and drawHref:
                 return '<a href="%s">%s</a>' % (href,image)
             return image
         return ''
