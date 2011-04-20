@@ -215,7 +215,7 @@ class Picture(BasePicture):
             self.setObject('imagesrc', imagesrc)
 
     security.declareProtected('View', 'view')
-    def view(self, urlCallable=None, parent=None, additionalAttributes=''):
+    def view(self, urlCallable=None, parent=None, additionalAttributes='', drawHref=1):
         "Render page"
         parent = parent or self.getCompoundDocContainer()
         if self.exists():
@@ -233,7 +233,7 @@ class Picture(BasePicture):
                 if item is not None:
                     href = item.absolute_url_path()
                     
-            if href is not None:
+            if href is not None and drawHref:
                 return '<a href="%s">%s</a>' % (href,image)
             return image
         return ""
