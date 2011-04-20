@@ -15,6 +15,7 @@ import Globals
 import os.path
 
 import utility
+import com.javascript
 
 from BTrees.OOBTree import OOBTree
 
@@ -32,11 +33,10 @@ class ControlCallableRender(ControlBase):
         tab_format = '<div id="%s">%s</div>'
         config_object = self.getConfigObject()
         if config_object is not None and config_object is not self:
-            temp.append('<div id="control_tabs">')
-            temp.append('<ul><li><a href="#Local">Local</a></li><li><a href="#Config">Config</a></li></ul>')
-            temp.append(tab_format % ('Local', self.edit_render()))
-            temp.append(tab_format % ('Config', config_object.edit_render()))
-            temp.append('</div>')
+            tabs = ((self.absolute_url_path() + '/edit_render','Local'), 
+                    (config_object.absolute_url_path() + '/edit_render','Config'))
+            temp.append(com.javascript.tabs_html('control_tabs', tabs))
+            
         else:
             temp.append(self.edit_render())
         return ''.join(temp)
