@@ -47,6 +47,18 @@ class File(UserObject):
 
     configurable = ('openFileInNewWindow',)
 
+    security.declarePrivate('validate_title')
+    def validate_title(self, value):
+        "remove all leading and trailing whitespace"
+        temp = value
+        try:
+            temp = value.strip()
+        except AttributeError:
+            pass
+        if not temp:
+            temp = 'Download File'
+        return temp
+
     security.declarePrivate('validate_filename')
     def validate_filename(self, value):
         "remove all leading and trailing whitespace"
@@ -267,6 +279,7 @@ class File(UserObject):
         self.changeUrlExtension()
         self.fixFileId()
         self.fixBlankFileName()
+        self.fixBlankTitle()
 
     security.declarePrivate('updateTitle')
     def updateTitle(self):
@@ -344,6 +357,13 @@ class File(UserObject):
         if not self.filename:
             self.filename = 'file'
     fixBlankFileName = utility.upgradeLimit(fixBlankFileName, 170)
+    
+    security.declarePrivate('fixBlankTitle')
+    def fixBlankTitle(self):
+        "change urlExtension to a sequence"
+        if not self.title:
+            self.title = 'Download File'
+    fixBlankTitle = utility.upgradeLimit(fixBlankTitle, 173)
 
             
 Globals.InitializeClass(File)
