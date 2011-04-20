@@ -11,6 +11,9 @@ import zLOG
 import os.path
 from Globals import DTMLFile
 from Acquisition import aq_base
+import com.javascript
+import com.css
+import com.detection
 
 from OFS.ObjectManager import ObjectManager
 
@@ -73,18 +76,15 @@ class BaseObject(Persistence.Persistent, ObjectManager, object):
     security.declarePublic('gzip_extension')
     def gzip_extension(self):
         "see if gzip works and return .gz or '' based on that"
-        if 'gzip' in self.REQUEST.environ.get('HTTP_ACCEPT_ENCODING', ''):
-            return '.gz'
-        else:
-            return ''
+        return '.gz' if com.detection.gzip_enabled(self.REQUEST) else ''
 
     def manage_page_header(self):
         "draw the manage page header string"
         language = self.getLanguage()
         encoding = self.getEncoding()
         cdocUrl = self.absolute_url_path()
-        theme = self.getJQueryCSSTheme()
         gzip_extension = self.gzip_extension()
+        gzip_enabled = com.detection.gzip_enabled(self.REQUEST)
 
         self.REQUEST.RESPONSE.setHeader('Content-Type', 'text/html; charset=%s' % encoding)
 
@@ -92,8 +92,6 @@ class BaseObject(Persistence.Persistent, ObjectManager, object):
             <html lang="%s"><head>
             <META http-equiv="Content-Type" content="text/html; charset=%s">
             <title>CompoundDoc</title>''' % (language,encoding)]
-        
-        temp.append('<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/themes/%s/jquery-ui.css">' % theme)
         
         if getattr(self,'cssDocEdit',None):
             temp.append('<link rel="stylesheet" type="text/css" href="%s/cssDocEditWrapper">' % cdocUrl)
@@ -108,29 +106,13 @@ class BaseObject(Persistence.Persistent, ObjectManager, object):
         
         temp.append('''
         <link rel="stylesheet" type="text/css" href="http://s3.amazonaws.com/media.webmediaengineering.com/CompoundDoc/mainEdit_1{gz}.css">        
-        <link rel="stylesheet" type="text/css" href="http://s3.amazonaws.com/media.webmediaengineering.com/CompoundDoc/default_8{gz}.css">
-        
-        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
-        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/jquery-ui.min.js"></script>
-        <script type="text/javascript" src="http://s3.amazonaws.com/media.webmediaengineering.com/CompoundDoc/default_8{gz}.js"></script>'''.format(gz=gzip_extension))
-        
-        temp.append('''
-        <script type="text/javascript">
-            $(document).ready(
-                function()
-                {
-                    $("a[rel^='lightbox']").colorbox({maxWidth:'85%', maxHeight:'85%', photo:true});
-                    $("input:submit").removeClass('submitChanges submit').button();
-                    $.fn.jPicker.defaults.images.clientPath='http://s3.amazonaws.com/media.webmediaengineering.com/CompoundDoc/images/';
-                    $.fn.jPicker.defaults.window.position.x='0';
-                    $.fn.jPicker.defaults.window.position.y='0';
-                    $('.color_picker').jPicker();  
-                    $( "#control_tabs" ).tabs();
-                    
-                });
-        </script>
-        ''')
-        
+        '''.format(gz=gzip_extension))
+        temp.append(com.css.default_css(gzip_enabled, self.getJQueryCSSTheme()))
+        temp.append(com.javascript.default_javascript(gzip_enabled))
+        temp.append(com.javascript.document_ready([com.javascript.color_picker_init(), 
+            com.javascript.nice_submit_button(),
+            com.javascript.lightbox_init(),
+            com.javascript.tabs_init('control_tabs')]))
         temp.append('</head><body>')
         return ''.join(temp)
 
