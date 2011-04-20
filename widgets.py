@@ -8,6 +8,8 @@ from formoutputfilter import FormOutputFilter
 import basewidget
 import utility
 
+import com.html
+
 class Widgets:
     "This is the widget class"
 
@@ -276,18 +278,11 @@ class Widgets:
     security.declareProtected("Access contents information", 'createTable')
     def createTable(self, rows):
         "create a table from this list it must be a balanced list within a list"
-        temp = ['<table class="%s %s">' % (self.getId(), getattr(self, 'meta_type', ''))]
-        format = '<td>%s</td>'
-        for row in rows:
-            temp.append('<tr>')
-            temp.extend([format % cell for cell in row])
-            temp.append('</tr>')
-        temp.append('</table>')
-        return ''.join(temp)
+        return com.html.createTable(rows, table_classes=(self.getId(), getattr(self, 'meta_type', '')))
 
     security.declareProtected("Access contents information", 'formatListForTable')
     def formatListForTable(self, seq, columns, filler=''):
         "return a list that is formated for this many columns and fill it with the value in filler for extra"
-        return utility.formatListForTable(seq, columns, filler)
+        return com.html.formatListForTable(seq, columns, filler)
 
 Globals.InitializeClass(Widgets)
