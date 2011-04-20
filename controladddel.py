@@ -2,6 +2,7 @@
 #http://www.gnu.org/copyleft/gpl.html
 
 from controlbase import ControlBase
+import com.javascript
 
 #For Security control and init
 from AccessControl import ClassSecurityInfo
@@ -21,14 +22,11 @@ class ControlAddDel(ControlBase):
         config_object = self.getConfigObject()
         temp = []
         if config_object is not None and config_object is not self:
-            temp.append('<div id="control_tabs">')
-            temp.append('<ul><li><a href="#Local">Local</a></li><li><a href="#Config">Config</a></li></ul>')
-            temp.append(tab_format % ('Local', self.edit_add_del()))
-            temp.append(tab_format % ('Config', config_object.edit_add_del()))
-            temp.append('</div>')
+            tabs = ((self.absolute_url_path() + '/edit_add_del','Local'), 
+                    (config_object.absolute_url_path() + '/edit_add_del','Config'))
+            temp.append(com.javascript.tabs_html('control_tabs', tabs))
         else:
             temp.append(self.edit_add_del())
-            temp.append('<div>%s</div>' % self.submitChanges())
         return ''.join(temp)
 
     security.declareProtected('View management screens', 'edit_add_del')
