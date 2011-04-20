@@ -426,10 +426,6 @@ myString = """%s"""
 
 return DTML(myString)(context, context.REQUEST, context.REQUEST.RESPONSE)''' % data
 
-def formatListForTable(seq, columns, filler=''):
-    "return a list that is formated for this many columns and fill it with the value in filler for extra"
-    return list(itertools.izip(*[itertools.chain(seq, itertools.repeat(filler, columns-1))]*columns))
-
 
 def dummy(*args, **kw):
     """do nothing just a dummy function to make it easier to deal 
