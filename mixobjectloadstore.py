@@ -26,13 +26,12 @@ class MixObjectLoadStore(BaseObject):
         noreplace = ['manage_workspace', 'manage_main', 'manage', 'manage_edit_form', 'ControlPanel', 'submitChanges']
         objectIds = [i for i in cdoc.objectIds() if i not in noreplace]
 
-        if hasattr(cdoc, 'masterLocation'):
-            if cdoc.masterLocation != self.getPath():
-                master = self.unrestrictedTraverse(cdoc.masterLocation, None)
-                if master is not None and master.meta_type == 'CompoundDoc' and master.DisplayManager is not None:
-                    self.setObject('DisplayManager', aq_base(master.DisplayManager))
-            replaceList.remove('DisplayManager')
-            noreplace.append('DisplayManager')
+        if cdoc.masterLocation is not None and cdoc.masterLocation != self.getPath():
+            master = self.unrestrictedTraverse(cdoc.masterLocation, None)
+            if master is not None and master.meta_type == 'CompoundDoc' and master.DisplayManager is not None:
+                self.setObject('DisplayManager', aq_base(master.DisplayManager))
+        replaceList.remove('DisplayManager')
+        noreplace.append('DisplayManager')
         #do replacemants
         for i in replaceList:
             if i in cdoc.__dict__:
