@@ -11,6 +11,7 @@ from basecontrolmanager import BaseControlManager
 #For Security control and init
 from AccessControl import ClassSecurityInfo
 import Globals
+import com.javascript
 
 import utility
 import nestedlisturl as NestedListUrl
@@ -56,11 +57,11 @@ class ControlModeManager(BaseControlManager):
             tab_format = '<div id="%s">%s<div>%s</div></div>'
             config_object = obj.getConfigObject()
             if config_object is not None and config_object is not self:
-                temp.append('<div id="control_tabs">')
-                temp.append('<ul><li><a href="#Local">Local</a></li><li><a href="#Config">Config</a></li></ul>')
-                temp.append(tab_format % ('Local', obj.draw(draw_mode), self.submitChanges()))
-                temp.append(tab_format % ('Config', config_object.draw(draw_mode), self.submitChanges()))
-                temp.append('</div>')
+                mode_url = obj.drawDict[draw_mode]
+                tabs = ((obj.absolute_url_path() + '/' + mode_url,'Local'), 
+                    (config_object.absolute_url_path() + '/' + mode_url,'Config'))
+                temp.append('<div>%s</div>' % self.submitChanges())
+                temp.append(com.javascript.tabs_html('control_tabs', tabs))
             else:
                 temp.append(obj.draw(draw_mode))
                 temp.append('<div>%s</div>' % self.submitChanges())
