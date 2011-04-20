@@ -8,6 +8,18 @@ import utility
 import basewidget
 import zExceptions
 
+from Products.PythonScripts.Utility import allow_module, allow_class
+from AccessControl import ModuleSecurityInfo, ClassSecurityInfo
+from AccessControl.class_init import InitializeClass
+
+allow_module('com.javascript')
+allow_module('com.css')
+allow_module('com.detection')
+allow_module('com.html')
+allow_module('com.form')
+allow_module('com.catalog')
+
+
 def initialize(context):
     "Initialize the CompoundDoc object."
     root = getattr(context, '_ProductContext__app')
