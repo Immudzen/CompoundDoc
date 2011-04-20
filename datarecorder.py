@@ -31,6 +31,8 @@ from Acquisition import Implicit
 import json
 import cgi
 
+import com.javascript
+
 class Record(SimpleItem):
     
     security = ClassSecurityInfo()
@@ -275,26 +277,16 @@ class DataRecorder(base.Base):
     security.declareProtected('View management screens', "advancedEdit")
     def advancedEdit(self, *args, **kw):
         "a better more advanced editing control"
-        temp = []
-        temp.append('''<script type="text/javascript">
-            $(function() {
-            $("#dataRecorderTab").tabs({ cache: false , ajaxOptions: { cache: false }, 
-                load: function(event, ui) {$("a[rel^='lightbox']").colorbox({maxWidth:'85%%', maxHeight:'85%%', photo:true});
-                    $.fn.jPicker.defaults.images.clientPath='http://c2219172.cdn.cloudfiles.rackspacecloud.com/images/';
-                    $('.color_picker').jPicker();
-                    $("input:submit").removeClass('submitChanges submit').button();}   
-            });
-            });
-            </script>
-            ''')
-        temp.append('<div id="dataRecorderTab"><ul>')
-        
         url = self.absolute_url_path()
-        temp.append('<li><a href="%s/%s">%s</a></li>' % (url,  'editStartTable',  'Start'))
-        temp.append('<li><a href="%s/%s">%s</a></li>' % (url,  'editRecordsTable',  'Inbox'))
-        temp.append('<li><a href="%s/%s">%s</a></li>' % (url,  'editArchivesTable',  'Archives'))
-        temp.append('<li><a href="%s/%s">%s</a></li>' % (url,  'editDownloadTable',  'Download'))
-        temp.append('</ul></div>')
+        temp = []
+        temp.append(com.javascript.document_ready([com.javascript.tabs_init('dataRecorderTab'),]))
+        
+        tabs = ((url+'/'+'editStartTable', 'Start'),
+            (url+'/'+'editRecordsTable', 'Inbox'),
+            (url+'/'+'editArchivesTable', 'Archives'),
+            (url+'/'+'editDownloadTable', 'Download'),)
+        
+        temp.append(com.javascript.tabs_html("dataRecorderTab", tabs))
         return ''.join(temp)
 
     def editStartTable(self):
