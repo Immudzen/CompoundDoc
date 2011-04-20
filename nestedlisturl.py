@@ -7,6 +7,7 @@ import base
 import urllib
 
 import utility
+import com.html
 
 def createQuery(queryDict):
     "create a query from this queryDict"
@@ -308,7 +309,7 @@ def drawNestedListTable(seq, level=1, columns=None, containerClasses='', **kw):
             end.append(drawNestedListTable(item, level+1, columns, containerClasses))
 
     if temp:
-        temp = utility.formatListForTable(temp, columns, '')
+        temp = com.html.formatListForTable(temp, columns, '')
         output = ['<table class="level%s %s">' % (level, containerClasses)]
         for row in temp:
             output.append('<tr>')
@@ -361,7 +362,7 @@ def drawRoundedTableGrid(seq, level=1, columns=None, containerClasses='', **kw):
             end.append(drawRoundedTableGrid(item, level+1, columns, containerClasses))
 
     if temp:
-        temp = utility.formatListForTable(temp, columns, '')
+        temp = com.html.formatListForTable(temp, columns, '')
         output = ['<table class="level%s %s">' % (level, containerClasses)]
         for row in temp:
             output.append(topRow)
