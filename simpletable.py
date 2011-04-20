@@ -8,6 +8,8 @@ from userobject import UserObject
 from AccessControl import ClassSecurityInfo
 import Globals
 
+import com.html
+
 class SimpleTable(UserObject):
     "presentation only simple table creation interface"
 
@@ -43,7 +45,7 @@ class SimpleTable(UserObject):
         #it should also not create any columns
         data = form.pop('data', None)
         if data is not None:
-            self.setRows(self.formatListForTable(data, self.cols))
+            self.setRows(com.html.formatListForTable(data, self.cols))
         
         cols = form.pop('cols', None)
         if cols is not None:
