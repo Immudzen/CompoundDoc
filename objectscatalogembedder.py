@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import basecatalog
-import zExceptions
 
 #For Security control and init
 from AccessControl import ClassSecurityInfo
 import Globals
+import com.catalog
 
 class ObjectsCatalogEmbedder(basecatalog.BaseCatalog):
     "Uses the Catalogs to give access to a view of many compounddocs"
@@ -57,14 +57,7 @@ class ObjectsCatalogEmbedder(basecatalog.BaseCatalog):
         catalog = self.getRealCatalog()
         if catalog is None or self.inuse is None or (self.limit and len(self.inuse) > self.limit):
             return None
-        #genexp me
-        temp = []
-        for i in catalog(id=self.inuse):
-            try:
-                temp.append(i.getObject())
-            except (zExceptions.Unauthorized, zExceptions.NotFound, KeyError):
-                pass
-        return temp
+        return [cdoc for cdoc in com.catalog.catalogIter(catalog(id=self.inuse))]
 
     security.declarePrivate('limitOkay')
     def limitOkay(self):
