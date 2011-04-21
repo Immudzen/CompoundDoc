@@ -78,7 +78,6 @@ class Date(UserObject):
             date = self.Date().Date()
         except AttributeError:
             date = ''
-        
         temp = ['''<script>$(function() {$( "#%s" ).datepicker({ dateFormat:'yy/mm/dd', maxDate:'+%sy',''' % (pageId, yearOffSetAfter)]
         temp.append('''minDate:'-%sy', gotoCurrent: true, changeMonth: true, changeYear: true });});</script>''' % yearOffSetBefore)
         temp.append(self.input_date('data', date, pageId=pageId))
@@ -138,6 +137,14 @@ class Date(UserObject):
         "Process edits."
         if 'clear' in dict:
             self.clearDateTime()
+            try:
+                del dict['data']
+            except KeyError:
+                pass
+            try:
+                del dict['date']
+            except KeyError:
+                pass
             return
         dateString = ''
         
