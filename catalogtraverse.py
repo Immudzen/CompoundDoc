@@ -1,5 +1,4 @@
 import basecatalog
-import zExceptions
 
 #for type checking with isinstance
 import types
@@ -8,6 +7,7 @@ import nestedlisturl as NestedListURL
 #For Security control and init
 from AccessControl import ClassSecurityInfo
 import Globals
+import com.catalog
 
 class CatalogTraverse(basecatalog.BaseCatalog):
     "traversal capabilities for a catalog transparently and with dynamic menu and output support"
@@ -84,11 +84,7 @@ class CatalogTraverse(basecatalog.BaseCatalog):
         fields = self.createUrlIdRecursiveList(ids, base=self.absolute_url())
         output.append(NestedListURL.drawNestedList(fields))
         if brains:
-            for i in brains:
-                try: 
-                    output.append(i.getObject()())
-                except (zExceptions.Unauthorized, zExceptions.NotFound, KeyError):
-                    pass
+            output = [cdoc.getObject().render(mode='view') for cdoc in com.catalog.catalogIter(brains)]
         return ''.join(output)
 
     def createUrlIdRecursiveList(self, list, base):
