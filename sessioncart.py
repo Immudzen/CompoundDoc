@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import base
 from AccessControl import getSecurityManager
-import zExceptions
 
 #For Security control and init
 from AccessControl import ClassSecurityInfo
@@ -14,6 +13,7 @@ import bisect
 
 import urllib
 import cgi
+import com.catalog
 
 from BTrees.OOBTree import OOBTree
 
@@ -468,15 +468,9 @@ class SessionCart(base.Base):
         catalog = getattr(folder, self.orderCatalog)
         oldOrders = catalog(customerLogin= username, sort_on='bobobase_modification_time', sort_order='descending')
 
-        lastOrder = None
-        for order in oldOrders:
-            try:
-                lastOrder = oldOrders[0].getObject()
-                if lastOrder is not None:
-                    break
-            except (zExceptions.Unauthorized, zExceptions.NotFound, KeyError):
-                pass
-        return lastOrder
+        #this will return immediately if we find any orders
+        for lastOrder in com.catalog.catalogIter(oldOrders):
+            return order
 
     security.declarePublic('handleCookieEvents')
     def handleCookieEvents(self):
