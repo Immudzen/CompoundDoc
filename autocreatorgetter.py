@@ -8,9 +8,9 @@
 ###########################################################################
 from AccessControl import ClassSecurityInfo
 import Globals
-import zExceptions
 
 from base import Base
+import com.catalog
 
 class AutoCreatorGetter(Base):
     "auto object creator getter class which can construct data to be used by the auto creator"
@@ -44,15 +44,12 @@ class AutoCreatorGetter(Base):
         folderUrl = '%s/' % self.restrictedTraverse(self.startFolder).absolute_url_path()
 
         cdoclist = []
-        for i in self.CDocUpgrader(path=folderUrl):
-            try:
-                profile = i.profile
-                cdoc = i.getObject()
-                if profile and cdoc is not None:
-                    path = i.getPath().replace(folderUrl,'')
-                    cdoclist.append((path, profile, cdoc))
-            except (zExceptions.Unauthorized, zExceptions.NotFound, KeyError):
-                pass
+        for record,cdoc in com.catalog.catalogIterItems2(self.CDocUpgrader(path=folderUrl)):
+            profile = record.profile
+            cdoc = i.getObject()
+            if profile and cdoc is not None:
+                path = i.getPath().replace(folderUrl,'')
+                cdoclist.append((path, profile, cdoc))
                 
         cdoclist.sort()
         return cdoclist
