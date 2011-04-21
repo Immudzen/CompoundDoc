@@ -6,6 +6,7 @@ from AccessControl import ClassSecurityInfo
 import Globals
 import csv
 import urllib
+import com.parsers
 
 class SeperatorDataFilter(datafilter.DataFilter):
     "HTMLDataFilter apply this to an a list of dicts to make it output a table"
@@ -90,18 +91,15 @@ class SeperatorDataFilter(datafilter.DataFilter):
     security.declarePrivate('render')
     def render(self, order=None, eol="\n", archive=None, start=None, stop=None, header=None, query=None, merge=None, filename=''):
         "Inline draw view"
-        self.REQUEST.RESPONSE.setHeader('Content-Disposition' , 'attachment; filename="%s"' % filename)
-        self.REQUEST.RESPONSE.setHeader('Content-Type',"text/x-csv")
-
         sep = self.seperator
         
         if order is None:
             order = self.getFieldOrder()
             
         records = self.getDataRecords(order, archive=archive, start=start, stop=stop, header=header, query=query, merge=merge)
-        writer = csv.writer(self.REQUEST.RESPONSE, lineterminator=eol, delimiter=sep)
-        writer.writerows(records)
-
+        
+        com.parsers.makeCSVStream(records, self.REQUEST, eol, sep, filename)
+        
         if not self.REQUEST.RESPONSE._wrote:
             self.REQUEST.RESPONSE.write('No Drawable Data Found' + eol)
 
