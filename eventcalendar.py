@@ -8,7 +8,6 @@
 ###########################################################################
 import calendar
 from DateTime import DateTime
-import zExceptions
 
 #For Security control and init
 from AccessControl import ClassSecurityInfo
@@ -16,6 +15,7 @@ import Globals
 
 from userobject import UserObject
 import utility
+import com.catalog
 
 class EventCalendar(UserObject):
     "Calendar object"
@@ -226,20 +226,15 @@ class EventCalendar(UserObject):
 
             query[self.dateField] = {'query':[start,end], 'range':'minmax'}
             
-            for record in catalog(query, sort_on=self.dateField):
+            for cdoc in com.catalog.catalogIter(catalog(query, sort_on=self.dateField)):
+                dateField = getattr(cdoc, self.dateField)
                 try:
-                    cdoc = record.getObject()
-                    if cdoc is not None:
-                        dateField = getattr(cdoc, self.dateField)
-                        try:
-                            day = dateField.Date().day()
-                        except AttributeError:
-                            day = dateField.day()
-                        if not day in events:
-                            events[day] = []
-                        events[day].append(cdoc)
-                except (zExceptions.Unauthorized, zExceptions.NotFound, KeyError):
-                    pass
+                    day = dateField.Date().day()
+                except AttributeError:
+                    day = dateField.day()
+                if not day in events:
+                    events[day] = []
+                events[day].append(cdoc)
             
         return events
 
