@@ -14,7 +14,6 @@ from AccessControl import ClassSecurityInfo
 import Globals
 from Acquisition import aq_base
 import utility
-import zExceptions
 
 picFormatScript = """traverse = pic.getCompoundDoc().restrictedTraverse
 for imageFilter in %s:
