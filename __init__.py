@@ -6,7 +6,6 @@ from baseobject import BaseObject
 import compounddoc
 import utility
 import basewidget
-import zExceptions
 
 from Products.PythonScripts.Utility import allow_module, allow_class
 from AccessControl import ModuleSecurityInfo, ClassSecurityInfo
