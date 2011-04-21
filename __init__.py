@@ -17,6 +17,7 @@ allow_module('com.detection')
 allow_module('com.html')
 allow_module('com.form')
 allow_module('com.catalog')
+allow_module('com.parsers')
 
 
 def initialize(context):
