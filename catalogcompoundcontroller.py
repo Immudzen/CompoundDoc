@@ -1,10 +1,10 @@
 import basecatalog
 import baseremoteembed
-import zExceptions
 
 #For Security control and init
 from AccessControl import ClassSecurityInfo
 import Globals
+import com.catalog
 
 class CatalogCompoundController(basecatalog.BaseCatalog, baseremoteembed.BaseRemoteEmbed):
     "Uses the Catalogs to give access to a view of many compounddocs"
@@ -39,15 +39,8 @@ class CatalogCompoundController(basecatalog.BaseCatalog, baseremoteembed.BaseRem
         if mymode not in self.modes:
             return ''
 
-        temp = []
-        for i in getattr(self, self.useCatalog)(meta_type='CompoundDoc'):
-            try:
-                object = i.getObject()
-                if object is not None:
-                    temp.append(self.embedRemoteObject(object, path, mymode, view, profile, drawid))
-            except (zExceptions.Unauthorized, zExceptions.NotFound, KeyError):
-                pass
-        return ''.join(temp)
+        records = getattr(self, self.useCatalog)(meta_type='CompoundDoc')
+        return [self.embedRemoteObject(cdoc, path, mymode, view, profile, drawid) for cdoc in com.catalog.catalogIter(records)]
 
     security.declarePrivate('PrincipiaSearchSource')
     def PrincipiaSearchSource(self):
@@ -68,13 +61,8 @@ class CatalogCompoundController(basecatalog.BaseCatalog, baseremoteembed.BaseRem
             return ''
 
         temp = []
-        for i in getattr(self, self.useCatalog)(meta_type='CompoundDoc'):
-            try:
-                object = i.getObject()
-                if object is not None:
-                    temp.append(self.embedRemoteObject(object, path, mymode, view, profile, drawid))
-            except (zExceptions.Unauthorized, zExceptions.NotFound, KeyError):
-                pass
+        for cdoc in com.catalog.catalogIter(getattr(self, self.useCatalog)(meta_type='CompoundDoc')):
+            temp.append(self.embedRemoteObject(cdoc, path, mymode, view, profile, drawid))
         return ''.join(temp)
 
 
