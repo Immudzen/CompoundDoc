@@ -16,6 +16,28 @@ import stat
 import os
 import os.path
 import ZODB.blob
+from OFS.SimpleItem import SimpleItem
+
+class Wrapper(SimpleItem):
+    def __init__(self, name, parent):
+        self.id = name
+        self._parent = parent
+        
+    def __bobo_traverse__(self, REQUEST, name):
+        "__bobo_traverse__"
+        parent = self._parent
+        if parent.exists() and name == parent.filename:
+            if parent.fileUrl:
+                return parent.redir
+            object = parent.data
+            type = object.content_type
+            if type == 'application/msword' or type == "":
+                type = 'application/octet-stream'
+                object.content_type = type
+            REQUEST.RESPONSE.setHeader('Content-Type',type)
+            REQUEST.RESPONSE.setHeader('Cache-Control', 'max-age=315360000')
+            REQUEST.RESPONSE.setHeader('Expires', 'Thu, 01 Dec 2030 12:00:0')
+            return object.index_html
 
 class File(UserObject):
     "File Class"
@@ -83,9 +105,7 @@ class File(UserObject):
     def __bobo_traverse__(self, REQUEST, name):
         "__bobo_traverse__"
         if name.startswith('ver_'):
-            name = self.REQUEST.TraversalRequestNameStack.pop()
-            self.REQUEST.RESPONSE.setHeader('Cache-Control', 'max-age=315360000')
-            self.REQUEST.RESPONSE.setHeader('Expires', 'Thu, 01 Dec 2030 12:00:0')
+            return Wrapper(name, self)
         extensions = []
         if self.getConfig('urlExtension'):
             extensions = self.getConfig('urlExtension')
@@ -106,7 +126,12 @@ class File(UserObject):
             return object.index_html
         elif hasattr(self, name):
             return getattr(self, name)
-    
+
+    security.declareProtected('View', 'redirect_file_url')
+    def redirect_file_url(self):
+        "redirect to the real file"
+        return self.REQUEST.RESPONSE.redirect(self.getUrlWithExtension(disableExtension=1))
+
     security.declareProtected('View', 'redir')
     def redir(self):
         "redirect to the real file"
@@ -210,7 +235,7 @@ class File(UserObject):
                 pass
 
         if self.fileUrl:
-            return urllib.quote(self.fileUrl)
+            return self.fileUrl
         else:
             version = 'ver_%s' % int(self.data.bobobase_modification_time().timeTime())
             return os.path.join(self.absolute_url_path(), version, urllib.quote(self.filename))
