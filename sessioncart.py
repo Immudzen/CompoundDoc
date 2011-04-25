@@ -470,7 +470,7 @@ class SessionCart(base.Base):
 
         #this will return immediately if we find any orders
         for lastOrder in com.catalog.catalogIter(oldOrders):
-            return order
+            return lastOrder
 
     security.declarePublic('handleCookieEvents')
     def handleCookieEvents(self):
