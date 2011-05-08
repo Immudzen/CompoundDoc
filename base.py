@@ -41,7 +41,7 @@ class Base(baseobject.BaseObject,
   SimpleItem):
     "Abstract Base"
 
-    classVersion = 173  #run upgrader scripts 160
+    classVersion = 174  #run upgrader scripts 160
     classUpdateVersion = 122  #add attributes
     overwrite = 0
     updateAlways = 0
