@@ -21,11 +21,11 @@ from OFS.SimpleItem import SimpleItem
 class Wrapper(SimpleItem):
     def __init__(self, name, parent):
         self.id = name
-        self._parent = parent
+        self.__parent__ = parent
         
     def __bobo_traverse__(self, REQUEST, name):
         "__bobo_traverse__"
-        parent = self._parent
+        parent = self.__parent__
         if parent.exists() and name == parent.filename:
             if parent.fileUrl:
                 return parent.redir
