@@ -232,10 +232,6 @@ def resaveExistingImage(filename, imageId):
         newImage.height = y
         return newImage
 
-def dtmlFree(string):
-    "return true if this object has no dtml in it"
-    return 'dtml' not in string
-
 def removeRecordFromCatalog(catalog, record):
     "remove this record from the catalog"
     catalog.uncatalog_object(record.getPath())
