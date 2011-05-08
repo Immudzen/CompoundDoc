@@ -14,6 +14,7 @@ from Acquisition import aq_base
 import com.javascript
 import com.css
 import com.detection
+import com.html
 
 from OFS.ObjectManager import ObjectManager
 
@@ -86,13 +87,9 @@ class BaseObject(Persistence.Persistent, ObjectManager, object):
         gzip_extension = self.gzip_extension()
         gzip_enabled = com.detection.gzip_enabled(self.REQUEST)
 
-        self.REQUEST.RESPONSE.setHeader('Content-Type', 'text/html; charset=%s' % encoding)
-
-        temp = ['''<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-            <html lang="%s"><head>
-            <META http-equiv="Content-Type" content="text/html; charset=%s">
-            <title>CompoundDoc</title>''' % (language,encoding)]
-        
+        temp = [com.html.docType(self.REQUEST, encoding=encoding, language_code=language, html5=1),
+            '<head><META http-equiv="Content-Type" content="text/html; charset=%s">' % encoding,
+            '<title>CompoundDoc</title>']
         if getattr(self,'cssDocEdit',None):
             temp.append('<link rel="stylesheet" type="text/css" href="%s/cssDocEditWrapper">' % cdocUrl)
 
@@ -129,7 +126,7 @@ class BaseObject(Persistence.Persistent, ObjectManager, object):
 
     security.declarePrivate('getEncoding')
     def getEncoding(self):
-        return getattr(self, 'CompoundDocEditEncoding', 'iso-8859-1')
+        return getattr(self, 'CompoundDocEditEncoding', 'iso-8859-15')
    
     security.declarePrivate('getJQueryCSSTheme')
     def getJQueryCSSTheme(self):
