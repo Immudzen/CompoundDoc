@@ -1130,12 +1130,14 @@ class CompoundDoc(Base, OFS.History.Historical, CatalogAware, UserObject):
     security.declareProtected('Upgrade CompoundDoc', 'upgradeCdoc')
     def upgradeCdoc(self):
         "upgrade this cdoc"
+        self.REQUEST.other['okayToRunNotification'] = 0
         self.upgradeAll()
         return 'Done'
         
     security.declareProtected('Upgrade CompoundDoc', 'upgradeAllCdocs')
     def upgradeAllCdocs(self):
         "do upgrades on all cdocs"
+        self.REQUEST.other['okayToRunNotification'] = 0
         root = self.getPhysicalRoot()
         catalog = root.CDocUpgrader
         
