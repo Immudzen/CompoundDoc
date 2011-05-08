@@ -213,7 +213,7 @@ class Picture(BasePicture):
             self.setObject('imagesrc_template', image_template.safe_substitute(decode))
 
     security.declareProtected('View', 'view')
-    def view(self, urlCallable=None, parent=None, additionalAttributes='', drawHref=1):
+    def view(self, urlCallable=None, parent=None, additionalAttributes='', drawHref=1, url_data = None):
         "Render page"
         parent = parent or self.getCompoundDocContainer()
         if self.exists():
@@ -226,8 +226,9 @@ class Picture(BasePicture):
                 self.delObjects(['imagesrc'])
             image = Template(self.imagesrc_template).safe_substitute(decode)
 
-            if drawHref and self.url:
-                href = com.html.generate_url(self.url, parent, self.REQUEST, url_callable=urlCallable)
+            url_data = url_data if url_data is not None else self.url
+            if drawHref and url_data:
+                href = com.html.generate_url(url_data, parent, self.REQUEST, url_callable=urlCallable)
                 if href is not None:
                     image = '<a href="%s">%s</a>' % (href,image)
             return image
