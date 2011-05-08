@@ -8,17 +8,21 @@ from basepicture import BasePicture
 #For Security control and init
 from AccessControl import ClassSecurityInfo
 import Globals
-from incrementalrender import IncrementalRender
 import utility
 import magicfile
 import PIL
+import com.html
+from string import Template
+
+image_template = Template('<img src="$url" width="$width" height="$height" alt="$alt" $tags $additionalAttributes>')
 
 class Picture(BasePicture):
     "Image class"
 
     meta_type = "Picture"
     security = ClassSecurityInfo()
-    imagesrc = ''
+    imagesrc = '' #obsolete
+    imagesrc_template = ''
     data = ''
     image = ''
     fileSize = ''
@@ -199,20 +203,14 @@ class Picture(BasePicture):
             decode = {}
             decode['height'] = self.data.height
             decode['width'] = self.data.width
-            if utility.dtmlFree(self.alt):
+            if com.detection.no_dtml(self.alt):
                 decode['alt'] = self.convert(self.alt)
             else:
                 decode['alt'] = self.alt
 
             decode['tags'] = self.tags
 
-            inc = IncrementalRender(decode)
-            imagesrc = '<img src="%(url)s" width="%(width)s" height="%(height)s" alt="%(alt)s" %(tags)s %(additionalAttributes)s >' % inc
-            url = self.url
-            if url and (not utility.dtmlFree(url) or '://' in url):
-                #the replace part is needed because the url might have % in them for spaces etc and it needs to be escaped
-                imagesrc = '<a href="%s">%s</a>' % (url.replace('%', '%%'),imagesrc)
-            self.setObject('imagesrc', imagesrc)
+            self.setObject('imagesrc_template', image_template.safe_substitute(decode))
 
     security.declareProtected('View', 'view')
     def view(self, urlCallable=None, parent=None, additionalAttributes='', drawHref=1):
@@ -222,19 +220,16 @@ class Picture(BasePicture):
             decode = {}
             decode['url'] = self.absolute_url_path_extension()
             decode['additionalAttributes'] = additionalAttributes
-            image = self.imagesrc % decode
+            if not self.imagesrc_template:
+                self.REQUEST.other['okayToRunNotification'] = 0
+                self.updateImageSrcCache()
+                self.delObjects(['imagesrc'])
+            image = Template(self.imagesrc_template).safe_substitute(decode)
 
-            url = self.url
-            href = None
-            if urlCallable is not None:
-                href = urlCallable(url)
-            elif url and utility.dtmlFree(url) and '://' not in url:
-                item = parent.restrictedTraverse(url,None)
-                if item is not None:
-                    href = item.absolute_url_path()
-                    
-            if href is not None and drawHref:
-                return '<a href="%s">%s</a>' % (href,image)
+            if drawHref and self.url:
+                href = com.html.generate_url(self.url, parent, self.REQUEST, url_callable=urlCallable)
+                if href is not None:
+                    image = '<a href="%s">%s</a>' % (href,image)
             return image
         return ""
 
@@ -256,6 +251,7 @@ class Picture(BasePicture):
         self.fixFileId()
         self.percentEscape()
         self.addAdditionalVarsSupport()
+        self.convert_to_template()
 
     security.declarePrivate('fixupAlt')
     def fixupAlt(self):
@@ -295,7 +291,13 @@ class Picture(BasePicture):
         "escape any % that might be in the url so that subs work right"
         self.updateImageSrcCache()
     percentEscape = utility.upgradeLimit(percentEscape, 159)            
-            
+
+    security.declarePrivate('convert_to_template')
+    def convert_to_template(self):
+        "escape any % that might be in the url so that subs work right"
+        self.updateImageSrcCache()
+    convert_to_template = utility.upgradeLimit(convert_to_template, 174) 
+    
 Globals.InitializeClass(Picture)
 import register
 register.registerClass(Picture)
