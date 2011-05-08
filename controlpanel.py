@@ -17,6 +17,7 @@ from controllinkmanager import ControlLinkManager
 from controlcallablerender import ControlCallableRender
 from controldefaultmanager import ControlDefaultManager
 from controlconverter import ControlConverter
+from controlcomhelp import ControlComHelp
 
 #For Security control and init
 from AccessControl import ClassSecurityInfo
@@ -35,7 +36,8 @@ class ControlPanel(base.Base):
     controlNames = ('ControlDisplayManager', 'ControlCatalogManager', 'ControlProfileManager',
       'ControlLicense', 'ControlRequest', 'ControlEventManager', 'ControlTabManager', 'ControlAddDel',
       'ControlShared', "ControlSecurityManager", 'ControlLinkManager',
-      'ControlCallableRender', 'ControlDefaultManager', 'ControlModeManager', 'ControlConverter')
+      'ControlCallableRender', 'ControlDefaultManager', 'ControlModeManager', 'ControlConverter',
+      'ControlComHelp')
 
     ControlDisplayManager = ControlDisplayManager('ControlDisplayManager')
     ControlCatalogManager = ControlCatalogManager('ControlCatalogManager')
@@ -52,6 +54,7 @@ class ControlPanel(base.Base):
     ControlCallableRender = ControlCallableRender('ControlCallableRender')
     ControlDefaultManager = ControlDefaultManager('ControlDefaultManager')
     ControlConverter = ControlConverter('ControlConverter')
+    ControlComHelp = ControlComHelp('ControlComHelp')
 
     security.declareObjectProtected('Manage Control Panel Form')
 
