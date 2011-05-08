@@ -11,7 +11,6 @@ from AccessControl import ClassSecurityInfo
 import Globals
 
 from userobject import UserObject
-from incrementalrender import IncrementalRender
 import utility
 
 class FreightCompany(UserObject):
@@ -35,10 +34,9 @@ class FreightCompany(UserObject):
     def getFreightCompanyListing(self):
         "return the freight company and the class listing as a dict with the value as the floating point number"
         listing = {}
-        inc = IncrementalRender({'freightCompanyName':self.freightCompanyName})
-        format = "%(freightCompanyName)s - %(freightClassName)s" % inc
+        format = "%s - %s"
         for freightClass in self.objectValues('FreightClass'):
-            listing[format % {'freightClassName':freightClass.freightClass}] = freightClass.price.float()
+            listing[format % (self.freightCompanyName,freightClass.freightClass)] = freightClass.price.float()
         return listing
 
     security.declarePrivate('syncFreightClasses')
