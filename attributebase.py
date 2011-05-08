@@ -26,9 +26,4 @@ class AttributeBase(Base):
         object view."""
         return self.gen_html(self.data)
 
-    security.declarePrivate('dtmlFree')
-    def dtmlFree(self):
-        "return true if this object has no dtml in it"
-        return 'dtml' not in self.data
-
 Globals.InitializeClass(AttributeBase)
