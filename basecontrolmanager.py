@@ -7,7 +7,6 @@ from controlbase import ControlBase
 #For Security control and init
 from AccessControl import ClassSecurityInfo
 import Globals
-from incrementalrender import IncrementalRender
 
 import os.path
 
@@ -22,7 +21,6 @@ class BaseControlManager(ControlBase):
     startLoc = ''
     cssClass = ''
     drawBlankPath = 1
-    urlFormat = '%(url)s/%(id)s'
 
     security.declarePublic('__bobo_traverse__')
     def __bobo_traverse__(self, REQUEST, name):
@@ -85,15 +83,12 @@ class BaseControlManager(ControlBase):
             containers = container.objectItems()
             containers = sorted((name, object) for name, object in containers if self.isOkay(name, object))
     
-            inc = IncrementalRender({'url':url})
-            format = self.urlFormat % inc
-    
             for name, object in containers:
                 if name == selected:
-                    temp.append((format % {'id':name}, name, 1, '', queryDict, ''))
+                    temp.append((os.path.join(url, name), name, 1, '', queryDict, ''))
                     temp.append(self.traverseContainer(object, path, url=os.path.join(url, selected), queryDict=queryDict))
                 else:
-                    temp.append((format % {'id':name}, name, 0, '', queryDict, ''))
+                    temp.append((os.path.join(url, name), name, 0, '', queryDict, ''))
         return temp
 
     security.declarePrivate('getOrigin')
