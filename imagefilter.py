@@ -9,10 +9,14 @@ from basepicture import BasePicture
 from AccessControl import ClassSecurityInfo
 import Globals
 
-from incrementalrender import IncrementalRender
 import utility
 import magicfile
 import PIL
+import com.html
+import com.detection
+from string import Template
+
+image_template = Template('<img src="$url" width="$width" height="$height" alt="$alt" $tags $additionalAttributes>')
 
 class ImageFilter(BasePicture):
     "Image class"
@@ -23,7 +27,8 @@ class ImageFilter(BasePicture):
     data = ''
     location = ''
     fileSize = ''
-    imagesrc = ''
+    imagesrc = '' #obsolete
+    imagesrc_template = ''
     thumbnail = None
     
     classConfig = BasePicture.classConfig.copy()
@@ -165,20 +170,14 @@ class ImageFilter(BasePicture):
                 url = remote.url
             
             
-            if utility.dtmlFree(alt):
+            if com.detection.no_dtml(alt):
                 decode['alt'] = self.convert(alt)
             else:
                 decode['alt'] = alt
 
             decode['tags'] = tags
 
-            inc = IncrementalRender(decode)
-            imagesrc = '<img src="%(url)s" width="%(width)s" height="%(height)s" alt="%(alt)s" %(tags)s %(additionalAttributes)s >' % inc
-            if url and (not utility.dtmlFree(url) or '://' in url):
-                #the replace part is needed because the url might have % in them for spaces etc and it needs to be escaped
-                imagesrc = '<a href="%s">%s</a>' % (url.replace('%', '%%'),imagesrc)
-            self.setObject('imagesrc', imagesrc)
-            return imagesrc
+            self.setObject('imagesrc_template', image_template.safe_substitute(decode))
 
     security.declarePrivate('genImage')
     def genImage(self, filename):
@@ -215,28 +214,25 @@ class ImageFilter(BasePicture):
     def view(self, urlCallable=None, parent=None, additionalAttributes='', drawHref=1):
         "Render page"
         remote = self.getRemoteImage()
-        parent = parent or remote
+        parent = parent if parent is not None else remote
         if remote is None:
             url = ''
         else:
             url = remote.url
         if self.exists():
-            imagesrc = self.imagesrc
-            if not imagesrc:
-                imagesrc = self.updateImageSrcCache()
-            decode = {'url': self.absolute_url_path_extension(), 'additionalAttributes':additionalAttributes}
-            image = self.imagesrc % decode
+            decode = {}
+            decode['url'] = self.absolute_url_path_extension()
+            decode['additionalAttributes'] = additionalAttributes
+            if not self.imagesrc_template:
+                self.REQUEST.other['okayToRunNotification'] = 0
+                self.updateImageSrcCache()
+                self.delObjects(['imagesrc'])
+            image = Template(self.imagesrc_template).safe_substitute(decode)
 
-            href = None
-            if urlCallable is not None:
-                href = urlCallable(url)
-            elif url and utility.dtmlFree(url) and '://' not in url:
-                item = parent.getCompoundDocContainer().restrictedTraverse(url,None)
-                if item is not None:
-                    href = item.absolute_url_path()
-                    
-            if href is not None and drawHref:
-                return '<a href="%s">%s</a>' % (href,image)
+            if drawHref and url:
+                href = com.html.generate_url(url, parent, self.REQUEST, url_callable=urlCallable)
+                if href is not None:
+                    image = '<a href="%s">%s</a>' % (href,image)
             return image
         return ''
 
@@ -261,6 +257,12 @@ class ImageFilter(BasePicture):
         "escape any % that might be in the url so that subs work right"
         self.updateImageSrcCache()
     percentEscape = utility.upgradeLimit(percentEscape, 159)
+
+    security.declarePrivate('convert_to_template')
+    def convert_to_template(self):
+        "escape any % that might be in the url so that subs work right"
+        self.updateImageSrcCache()
+    convert_to_template = utility.upgradeLimit(convert_to_template, 174) 
 
 Globals.InitializeClass(ImageFilter)
 import register
