@@ -211,7 +211,7 @@ class ImageFilter(BasePicture):
         self.setFileSize()
 
     security.declareProtected('View', 'view')
-    def view(self, urlCallable=None, parent=None, additionalAttributes='', drawHref=1):
+    def view(self, urlCallable=None, parent=None, additionalAttributes='', drawHref=1, url_data=None):
         "Render page"
         remote = self.getRemoteImage()
         parent = parent if parent is not None else remote
@@ -229,8 +229,9 @@ class ImageFilter(BasePicture):
                 self.delObjects(['imagesrc'])
             image = Template(self.imagesrc_template).safe_substitute(decode)
 
-            if drawHref and url:
-                href = com.html.generate_url(url, parent, self.REQUEST, url_callable=urlCallable)
+            url_data = url_data if url_data is not None else url
+            if drawHref and url_data:
+                href = com.html.generate_url(url_data, parent, self.REQUEST, url_callable=urlCallable)
                 if href is not None:
                     image = '<a href="%s">%s</a>' % (href,image)
             return image
