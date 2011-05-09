@@ -11,7 +11,7 @@ class GetSet:
     security = ClassSecurityInfo()
 
     security.declarePrivate('parentPaths')
-    def updateParentPaths(self,  name):
+    def updateParentPaths(self,  names):
         "return a list of the db paths of this objects parents up to the containing cdoc"
         if not hasattr(self, 'aq_chain') or not hasattr(self, 'REQUEST'):
             return None
@@ -25,8 +25,8 @@ class GetSet:
         modifiedDocs = self.REQUEST.other['modifiedDocs']
         
         attr_notified = self.attr_notified
-        if attr_notified is None or (attr_notified is not None and name in attr_notified):
-                modifiedPaths.add(aq_base(self))
+        if attr_notified is None or (attr_notified is not None and names.intersection(attr_notified)):
+            modifiedPaths.add(aq_base(self))
         
         modifiedDocs.add(self.getCompoundDoc())
         
@@ -44,12 +44,12 @@ class GetSet:
         if hasattr(self.__class__, name) and getattr(self.__class__, name) == content:
             if name in self.__dict__:
                 delattr(self, name)
-                self.updateParentPaths(name)
+                self.updateParentPaths(set([name]))
             return
         currentValue = getattr(aq_base(self), name, None)
         if name not in self.__dict__ or content != currentValue:
             setattr(self, name, content)
-            self.updateParentPaths(name)
+            self.updateParentPaths(set([name]))
             aq_base(self)._updateMetaMapping(name, aq_base(content))
             
             try:
@@ -87,7 +87,7 @@ class GetSet:
                 pass
             
         if modified:
-            self.updateParentPaths(None)
+            self.updateParentPaths(set(names))
 
     security.declarePrivate('updateObject')
     def updateObject(self, name, content):
