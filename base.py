@@ -41,7 +41,7 @@ class Base(baseobject.BaseObject,
   SimpleItem):
     "Abstract Base"
 
-    classVersion = 174  #run upgrader scripts 160
+    classVersion = 176  #run upgrader scripts 160
     classUpdateVersion = 122  #add attributes
     overwrite = 0
     updateAlways = 0
@@ -67,7 +67,6 @@ class Base(baseobject.BaseObject,
 
     security.declareProtected("Access contents information", 'objectIds')
     objectIds = ObjectManager.objectIds
-    _getOb = ObjectManager._getOb
 
     security.declareProtected("Access contents information", 'objectIdsWithMetaType')
     def objectIdsWithMetaType(self, spec=None):
