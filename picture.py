@@ -96,7 +96,7 @@ class Picture(BasePicture):
     def before_manage_edit(self, dict):
         "This is the object specific edit stuff"
         if dict.pop('_del',None) == 'Y' and self.getConfig('deletion'):
-            self.delObjects(('data','imagesrc','thumbnail', 'fileSize'))
+            self.delObjects(('data','imagesrc','thumbnail', 'fileSize', 'imagesrc_template'))
 
         if dict.get('data', None):  #don't process if data does not have anything in it
             filename, remove_after = utility.createTempFile(dict['data'])
@@ -113,7 +113,7 @@ class Picture(BasePicture):
                     self.data.height = y
                 else:
                     self.data.manage_upload(open(filename, 'rb'))
-                self.updateParentPaths('data')
+                self.updateParentPaths(set(['data']))
 
                 self.makeThumbnail(filename)
                 self.setFileSize()
