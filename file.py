@@ -3,7 +3,6 @@
 #http://www.gnu.org/copyleft/gpl.html
 
 from userobject import UserObject
-import OFS.Image
 import magicfile
 from Acquisition import aq_base
 
@@ -12,8 +11,6 @@ from AccessControl import ClassSecurityInfo
 import Globals
 import utility
 import urllib
-import stat
-import os
 import os.path
 import ZODB.blob
 from OFS.SimpleItem import SimpleItem
@@ -44,7 +41,7 @@ class File(UserObject):
 
     meta_type = "File"
     security = ClassSecurityInfo()
-    data = ''
+    data = None
     fileSize = ''
     openFileInNewWindow = 0
     deletion = 1
@@ -165,8 +162,10 @@ class File(UserObject):
         data = dict.pop('data', None)
         if data is not None:
             try:
-                temp = OFS.Image.File(id='data',title=self.getId(),file=data)
-                self.setObject('data', temp)
+                if not self.data:
+                    self.manage_addProduct['File'].manage_addFile('data', data)
+                else:
+                    self.data.manage_upload(data)
                 self.setFileSize()
                 self.updateFileContentType() 
             except ValueError: #catches no file uploaded
@@ -198,7 +197,7 @@ class File(UserObject):
         queryString = ''
         if query is not None:
             queryString = '?' + urllib.urlencode(query)
-        if not self.fileUrl and self.data == "":
+        if not self.fileUrl and self.data == None:
             pass
         else:
             if not title:
