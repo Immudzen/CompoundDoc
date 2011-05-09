@@ -2,7 +2,6 @@
 #This software is released under GNU public license. See details in the URL:
 #http://www.gnu.org/copyleft/gpl.html
 
-import OFS.Image
 from basepicture import BasePicture
 
 #For Security control and init
@@ -14,6 +13,8 @@ import magicfile
 import PIL
 import com.html
 import com.detection
+import os
+import stat
 from string import Template
 
 image_template = Template('<img src="$url" width="$width" height="$height" alt="$alt" $tags $additionalAttributes>')
@@ -23,13 +24,14 @@ class ImageFilter(BasePicture):
 
     security = ClassSecurityInfo()
     meta_type = "ImageFilter"
-    image = ''
-    data = ''
+    image = None
+    data = None
     location = ''
     fileSize = ''
     imagesrc = '' #obsolete
     imagesrc_template = ''
     thumbnail = None
+    url = ''
     
     classConfig = BasePicture.classConfig.copy()
     classConfig['location'] = {'name':'Location of Image:', 'type': 'string'}
@@ -115,7 +117,10 @@ class ImageFilter(BasePicture):
         #this is the normal case
         pic = pic if pic is not None else self.getRemoteImage()
         if pic is not None and pic.exists():
-            self.generateImage(pic)
+            if 'UpdateCacheOnly' in self.REQUEST.other:
+                self.updateImageSrcCache(remote=pic)
+            else:
+                self.generateImage(pic)
         else:
             self.delObjects(['image', 'thumbnail', 'fileSize'])
 
@@ -126,16 +131,14 @@ class ImageFilter(BasePicture):
             filename, remove_after = utility.createTempFile(self.image.data)
             content_type = magicfile.magic(filename)
             if content_type.startswith('image'):
-                temp = utility.resaveExistingImage(filename, 'image')
+                temp_file, x, y = utility.resaveExistingImage(filename)
                 beforeSize = utility.fileSizeToInt(self.getFileSize())
-                if temp is not None:
-                    afterSize = utility.fileSizeToInt(utility.fileSizeString(temp.data))
-                else:
-                    afterSize = beforeSize
-                if temp is not None and afterSize < beforeSize:
-                    self.setObject('image', temp)
+                if temp_file is not None and os.stat(temp_file.name)[stat.ST_SIZE] < beforeSize:
+                    self.image.manage_upload(temp_file)
+                    self.image.width = x
+                    self.image.height = y
                     #have to redo the content_type after we modify the image in case it has changed
-                    content_type = magicfile.magic(filename)
+                    content_type = magicfile.magic(temp_file.name)
                     self.setFileSize()
                     self.image.content_type = content_type
             utility.removeTempFile(filename, remove_after)
@@ -147,9 +150,9 @@ class ImageFilter(BasePicture):
         content_type = magicfile.magic(filename)
         if content_type.startswith('image'):
             self.genImage(filename)
-            self.updateImageSrcCache()
+            self.updateImageSrcCache(pic)
+        self.makeThumbnail(filename)
         utility.removeTempFile(filename, remove_after)
-        self.makeThumbnail()
 
     security.declarePrivate('updateImageSrcCache')
     def updateImageSrcCache(self,  remote=None):
@@ -159,16 +162,14 @@ class ImageFilter(BasePicture):
             decode['height'] = self.image.height
             decode['width'] = self.image.width
             
-            remote = remote or self.getRemoteImage()
+            remote = remote if remote is not None else self.getRemoteImage()
             if remote is None:
                 alt = ''
                 tags = ''
-                url = ''
             else:
                 alt = remote.alt
                 tags = remote.tags
-                url = remote.url
-            
+                self.setObject('url', remote.url)            
             
             if com.detection.no_dtml(alt):
                 decode['alt'] = self.convert(alt)
@@ -204,8 +205,10 @@ class ImageFilter(BasePicture):
             y = 1
         image = image.resize((x, y))
         tempFile = utility.saveImage(image, self.getConfig('format'))
-        newimage = OFS.Image.Image('image', 'image', tempFile)
-        self.setObject('image', newimage)
+        if not self.image:
+            self.manage_addProduct['Image'].manage_addImage('image', tempFile, 'image')
+        else:
+            self.image.manage_upload(tempFile)
         self.image.width = int(x)
         self.image.height = int(y)
         self.setFileSize()
@@ -213,12 +216,9 @@ class ImageFilter(BasePicture):
     security.declareProtected('View', 'view')
     def view(self, urlCallable=None, parent=None, additionalAttributes='', drawHref=1, url_data=None):
         "Render page"
-        remote = self.getRemoteImage()
-        parent = parent if parent is not None else remote
-        if remote is None:
-            url = ''
-        else:
-            url = remote.url
+        parent = parent if parent is not None else self.getRemoteImage()
+        parent = parent if parent is not None else self.getCompoundDoc()
+
         if self.exists():
             decode = {}
             decode['url'] = self.absolute_url_path_extension()
@@ -229,9 +229,9 @@ class ImageFilter(BasePicture):
                 self.delObjects(['imagesrc'])
             image = Template(self.imagesrc_template).safe_substitute(decode)
 
-            url_data = url_data if url_data is not None else url
+            url_data = url_data if url_data is not None else self.url
             if drawHref and url_data:
-                href = com.html.generate_url(url_data, parent, self.REQUEST, url_callable=urlCallable)
+                href = com.html.generate_url(url_data, context, self.REQUEST, url_callable=urlCallable)
                 if href is not None:
                     image = '<a href="%s">%s</a>' % (href,image)
             return image
@@ -250,20 +250,19 @@ class ImageFilter(BasePicture):
     security.declarePrivate('classUpgrader')
     def classUpgrader(self):
         "upgrade this class"
-        self.percentEscape()
-        self.addAdditionalVarsSupport()
+        self.save_pic_url()
 
-    security.declarePrivate('percentEscape')
-    def percentEscape(self):
-        "escape any % that might be in the url so that subs work right"
-        self.updateImageSrcCache()
-    percentEscape = utility.upgradeLimit(percentEscape, 159)
-
-    security.declarePrivate('convert_to_template')
-    def convert_to_template(self):
-        "escape any % that might be in the url so that subs work right"
-        self.updateImageSrcCache()
-    convert_to_template = utility.upgradeLimit(convert_to_template, 174) 
+    security.declarePrivate('save_pic_url')
+    def save_pic_url(self):
+        "put the picture url in the imagefilter so we don't have to load a picture to draw an imagefilter"
+        if self.scriptChangePath: #if we have a notification script the only way we can update our data is to run it
+            self.REQUEST.other['UpdateCacheOnly'] = 1
+            self.runChangeNotificationScript()
+            del self.REQUEST.other['UpdateCacheOnly']
+        else:
+            self.updateImageSrcCache()
+        self.delObjects(['imagesrc'])
+    save_pic_url = utility.upgradeLimit(save_pic_url, 176)
 
 Globals.InitializeClass(ImageFilter)
 import register
