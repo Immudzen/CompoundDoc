@@ -14,7 +14,6 @@ import time
 import tempfile
 from BTrees.OOBTree import OOBTree
 import transaction
-import OFS.Image
 import chardet
 
 import itertools
@@ -199,8 +198,13 @@ def createTempFile(data):
         filename = data.open('r').name
         remove_after = 0
         return filename, remove_after
-    filename = tempfile.mktemp()
-    open(filename, 'w').write(str(data))
+    handle, filename = tempfile.mkstemp()
+    temp_file = open(filename, 'wb')
+    try:
+        temp_file.write(data.read())
+    except AttributeError:
+        temp_file.write(str(data))
+    temp_file.close()
     remove_after = 1
     return filename, remove_after
     
@@ -208,7 +212,7 @@ def removeTempFile(filename, remove_after):
     "remove this temp file"
     if remove_after:
         os.remove(filename)
-
+    
 def saveImage(pilImage, format):
     "saves the image via the filesystem since StringIO causes errors sometimes"
     temp = tempfile.TemporaryFile()
@@ -217,20 +221,15 @@ def saveImage(pilImage, format):
     except IOError:
         pilImage.save(temp, format)
     temp.seek(0)
-    data = temp.read()
-    temp.close()
-    return data
+    return temp
     
-def resaveExistingImage(filename, imageId):
+def resaveExistingImage(filename):
     "generate this image"
     image=PIL.Image.open(filename)
     if image.format in ('JPEG', 'PNG'):
         (x, y) = image.size
-        tempFile = saveImage(image, image.format)
-        newImage = OFS.Image.Image(imageId, imageId, tempFile)
-        newImage.width = x
-        newImage.height = y
-        return newImage
+        temp_file = saveImage(image, image.format)
+        return temp_file, x, y
 
 def removeRecordFromCatalog(catalog, record):
     "remove this record from the catalog"
