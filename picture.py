@@ -2,7 +2,6 @@
 #This software is released under GNU public license. See details in the URL:
 #http://www.gnu.org/copyleft/gpl.html
 
-import OFS.Image
 from basepicture import BasePicture
 
 #For Security control and init
@@ -12,6 +11,8 @@ import utility
 import magicfile
 import PIL
 import com.html
+import os
+import stat
 from string import Template
 
 image_template = Template('<img src="$url" width="$width" height="$height" alt="$alt" $tags $additionalAttributes>')
@@ -23,8 +24,8 @@ class Picture(BasePicture):
     security = ClassSecurityInfo()
     imagesrc = '' #obsolete
     imagesrc_template = ''
-    data = ''
-    image = ''
+    data = None
+    image = None
     fileSize = ''
     deletion = 1
     preview = 1
@@ -98,21 +99,26 @@ class Picture(BasePicture):
             self.delObjects(('data','imagesrc','thumbnail', 'fileSize'))
 
         if dict.get('data', None):  #don't process if data does not have anything in it
-            temp = OFS.Image.Image('data',self.getId(),dict['data'])
-            filename, remove_after = utility.createTempFile(temp.data)
+            filename, remove_after = utility.createTempFile(dict['data'])
             content_type = magicfile.magic(filename)
             if content_type.startswith('image'):
+                if not self.data:
+                    self.manage_addProduct['Image'].manage_addImage('data', '', 'data')
                 if self.getConfig('resizeOnUpload'):
-                    temp = self.resizeImage(filename)
+                    self.resizeImage(filename)
                 elif self.getConfig('resaveOnUpload'):
-                    resaved = utility.resaveExistingImage(filename, 'data')
-                    if resaved is not None:
-                        temp = resaved
-                self.setObject('data', temp)
-                self.makeThumbnail()
+                    temp_file,x,y = utility.resaveExistingImage(filename)
+                    self.data.manage_upload(open(filename, 'rb'))
+                    self.data.width = x
+                    self.data.height = y
+                else:
+                    self.data.manage_upload(open(filename, 'rb'))
+                self.updateParentPaths('data')
+
+                self.makeThumbnail(filename)
                 self.setFileSize()
-                self.storeContentType(content_type)
-            utility.removeTempFile(filename, remove_after)    
+                self.storeContentType(content_type) 
+            utility.removeTempFile(filename, remove_after)
         try:
             del dict['data']
         except KeyError:
@@ -125,7 +131,7 @@ class Picture(BasePicture):
             self.updateImageSrcCache()
 
     security.declareProtected('Change CompoundDoc', 'resizeImage')
-    def resizeImage(self,  filename):
+    def resizeImage(self, filename):
         "generate this image"
         image=PIL.Image.open(filename)
         if image.mode != self.getConfig('color'):
@@ -151,10 +157,9 @@ class Picture(BasePicture):
             y = 1
         image = image.resize((x, y))
         tempFile = utility.saveImage(image, self.getConfig('format'))
-        newImage = OFS.Image.Image('data', 'data', tempFile)
-        newImage.width = x
-        newImage.height = y
-        return newImage
+        self.data.manage_upload(tempFile)
+        self.data.width = x
+        self.data.height = y
 
     security.declareProtected('Change CompoundDoc', 'resaveExistingImage')
     def resaveExistingImage(self):
@@ -164,37 +169,37 @@ class Picture(BasePicture):
             content_type = magicfile.magic(filename)
             if content_type.startswith('image'):
                 if self.getConfig('resaveOnUpload'):
-                    temp = utility.resaveExistingImage(filename, 'data')
+                    temp_file,x,y = utility.resaveExistingImage(filename)
                     beforeSize = utility.fileSizeToInt(self.getFileSize())
-                    if temp is not None:
-                        afterSize = utility.fileSizeToInt(utility.fileSizeString(temp.data))
-                    else:
-                        afterSize = beforeSize
-                    if temp is not None and afterSize < beforeSize:
-                        self.setObject('data', temp)
+                    if temp_file is not None and os.stat(temp_file.name)[stat.ST_SIZE] < beforeSize:
+                        if not self.data:
+                            self.manage_addProduct['Image'].manage_addImage('data', temp_file, 'data')
+                        else:
+                            self.data.manage_upload(temp_file)
+                        self.data.width = x
+                        self.data.height = y
                         #have to redo the content_type after we modify the image in case it has changed
-                        content_type = magicfile.magic(filename)
+                        content_type = magicfile.magic(temp_file.name)
                         self.setFileSize()
                         self.storeContentType(content_type)
-            utility.removeTempFile(filename, remove_after) 
+            utility.removeTempFile(filename, remove_after)
 
     security.declareProtected('Change CompoundDoc', 'resizeExistingImage')
     def resizeExistingImage(self):
-        "reisze existing images"
+        "resize existing images"
         if self.exists():
             filename, remove_after = utility.createTempFile(self.data.data)
             content_type = magicfile.magic(filename)
             if content_type.startswith('image'):
                 if self.getConfig('resizeOnUpload'):
-                    temp = self.resizeImage(filename)
-                    self.setObject('data', temp)
+                    self.resizeImage(filename)
                     #have to redo the content_type after we modify the image in case it has changed
-                    content_type = magicfile.magic(filename)
-                    self.makeThumbnail()
+                    content_type = magicfile.magic(filename)    #not correct
+                    self.makeThumbnail(filename)
                     self.setFileSize()
                     self.storeContentType(content_type)
                     self.updateImageSrcCache()
-            utility.removeTempFile(filename, remove_after)  
+            utility.removeTempFile(filename, remove_after)
 
     security.declareProtected('Change CompoundDoc', 'updateImageSrcCache')
     def updateImageSrcCache(self):
@@ -250,8 +255,6 @@ class Picture(BasePicture):
         self.fixupTags()
         self.removeAttributeText()
         self.fixFileId()
-        self.percentEscape()
-        self.addAdditionalVarsSupport()
         self.convert_to_template()
 
     security.declarePrivate('fixupAlt')
@@ -287,17 +290,12 @@ class Picture(BasePicture):
         self.updateImageSrcCache()
     removeAttributeText = utility.upgradeLimit(removeAttributeText, 148)
             
-    security.declarePrivate('percentEscape')
-    def percentEscape(self):
-        "escape any % that might be in the url so that subs work right"
-        self.updateImageSrcCache()
-    percentEscape = utility.upgradeLimit(percentEscape, 159)            
-
     security.declarePrivate('convert_to_template')
     def convert_to_template(self):
-        "escape any % that might be in the url so that subs work right"
+        "convert to a template"
         self.updateImageSrcCache()
-    convert_to_template = utility.upgradeLimit(convert_to_template, 174) 
+        self.delObjects(['imagesrc'])
+    convert_to_template = utility.upgradeLimit(convert_to_template, 176) 
     
 Globals.InitializeClass(Picture)
 import register
