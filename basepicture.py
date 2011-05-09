@@ -9,13 +9,13 @@
 #This software is released under GNU public license. See details in the URL:
 #http://www.gnu.org/copyleft/gpl.html
 
-import OFS.Image
 from file import File
 
 #For Security control and init
 from AccessControl import ClassSecurityInfo
 import Globals
 import magicfile
+from PIL import Image
 
 import utility
 
@@ -55,7 +55,7 @@ class BasePicture(File):
     configurable = ('format', 'color',)
 
     security.declarePrivate('makeThumbnail')
-    def makeThumbnail(self):
+    def makeThumbnail(self, filename):
         """
         Makes a thumbnail image given an image Id when called on a Zope
         folder.
@@ -67,24 +67,20 @@ class BasePicture(File):
         """
         size=30
         data = self.data or self.image
-        filename, remove_after = utility.createTempFile(data.data)
         content_type = magicfile.magic(filename)
         if content_type.startswith('image'):
-            try:
-                from PIL import Image
-                            
-                image=Image.open(filename)
-                image=image.convert('RGB')
-                (x,y) = image.size
-                if x > size: x = size
-                if y > size: y = size
-                image = image.resize((x,y))
-                thumbnail_file = utility.saveImage(image, 'JPEG')
-                thumbnail_id = "thumbnail"
-                self.setObject(thumbnail_id, OFS.Image.Image(thumbnail_id, thumbnail_id, thumbnail_file))
-            except (IOError, ImportError):
-                pass
-        utility.removeTempFile(filename, remove_after) 
+            image=Image.open(filename)
+            image=image.convert('RGB')
+            (x,y) = image.size
+            if x > size: x = size
+            if y > size: y = size
+            image = image.resize((x,y))
+            thumbnail_file = utility.saveImage(image, 'JPEG')
+            thumbnail_id = "thumbnail"
+            if not getattr(self, thumbnail_id):
+                self.manage_addProduct['Image'].manage_addImage(thumbnail_id, thumbnail_file, thumbnail_id)
+            else:
+                self._getOb(thumbnail_id).manage_upload(thumbnail_file)
 
     extensionLookup = {}
     extensionLookup['image/jpeg'] = 'jpg'
@@ -147,10 +143,7 @@ class BasePicture(File):
     security.declarePrivate('small')
     def small(self):
         "Draw a small version of the object"
-        if self.exists() and self.thumbnail is None:            
-            self.makeThumbnail()
-
-        if self.exists() and self.hasObject('thumbnail'):
+        if self.exists():
             decode = {'url': self.absolute_url_path_extension_thumbnail(),
               'fullUrl':self.absolute_url_path_extension(),
               'height':self.thumbnail.height ,
@@ -159,12 +152,6 @@ class BasePicture(File):
               'name': "thumbnail"}
             return '<a href="%(fullUrl)s" rel="lightbox"><img src="%(url)s" width="%(width)s" height="%(height)s" alt="%(alt)s"></a>' % decode
         return ""
-
-    security.declarePrivate('addAdditionalVarsSupport')
-    def addAdditionalVarsSupport(self):
-        "escape any % that might be in the url so that subs work right"
-        self.updateImageSrcCache()
-    addAdditionalVarsSupport = utility.upgradeLimit(addAdditionalVarsSupport, 168)
 
 Globals.InitializeClass(BasePicture)
 import register
