@@ -112,7 +112,7 @@ class ImageFilter(BasePicture):
         #this handles the case where we can't find the remote object we should be attached to
         remote = self.getRemoteImage()
         if remote is None and self.getConfig('location'):
-            self.delObjects(['image', 'thumbnail', 'fileSize'])
+            self.delObjects(['image', 'thumbnail', 'fileSize', 'imagesrc_template'])
                 
         #this is the normal case
         pic = pic if pic is not None else self.getRemoteImage()
@@ -122,7 +122,7 @@ class ImageFilter(BasePicture):
             else:
                 self.generateImage(pic)
         else:
-            self.delObjects(['image', 'thumbnail', 'fileSize'])
+            self.delObjects(['image', 'thumbnail', 'fileSize', 'imagesrc_template'])
 
     security.declareProtected('Change CompoundDoc', 'resaveExistingImage')
     def resaveExistingImage(self):
