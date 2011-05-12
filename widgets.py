@@ -31,14 +31,14 @@ class Widgets:
         return self.input_line(name, 'string', var, containers, "hidden")
 
     security.declarePrivate('input_number')
-    def input_number(self, name, var="", containers=None):
+    def input_number(self, name, var="", containers=None, pageId=None):
         "Create a number input field"
-        return self.input_line(name, 'int', str(var), containers)
+        return self.input_line(name, 'int', str(var), containers, pageId=pageId)
 
     security.declarePrivate('input_float')
-    def input_float(self, name, var="", containers=None):
+    def input_float(self, name, var="", containers=None, pageId=None):
         "Create a number input field"
-        return self.input_line(name, 'float', str(var), containers)
+        return self.input_line(name, 'float', str(var), containers, pageId=pageId)
 
     security.declarePrivate('input_date')
     def input_date(self, name, var="", containers=None, pageId=None):
