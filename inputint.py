@@ -16,12 +16,12 @@ class InputInt(InputNumber):
     calculated = None
 
     security.declareProtected('View management screens', 'edit')
-    def edit(self, *args, **kw):
+    def edit(self, pageId=None, *args, **kw):
         "Inline edit short object"
         temp = []
         if self.calculated is not None:
             temp.append(str(self.calculated))
-        temp.append(self.input_number('data', self.data))
+        temp.append(self.input_number('data', self.data, pageId=pageId))
         return ''.join(temp)
 
     security.declareProtected('View', 'view')
