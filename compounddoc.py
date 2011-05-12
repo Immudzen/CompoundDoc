@@ -1135,14 +1135,14 @@ class CompoundDoc(Base, OFS.History.Historical, CatalogAware, UserObject):
         return 'Done'
         
     security.declareProtected('Upgrade CompoundDoc', 'upgradeAllCdocs')
-    def upgradeAllCdocs(self):
+    def upgradeAllCdocs(self, path=None):
         "do upgrades on all cdocs"
         self.REQUEST.other['okayToRunNotification'] = 0
         root = self.getPhysicalRoot()
         catalog = root.CDocUpgrader
         
         
-        upgradeMe = self.getUpgradeableRecords()
+        upgradeMe = self.getUpgradeableRecords(path=path)
 
         removeRecordFromCatalog = utility.removeRecordFromCatalog
         
@@ -1167,12 +1167,20 @@ class CompoundDoc(Base, OFS.History.Historical, CatalogAware, UserObject):
  
         write('Done')
 
+    security.declareProtected('Upgrade CompoundDoc', 'upgradeAllCdocsInFolder')
+    def upgradeAllCdocsInFolder(self):
+        "do upgrades on all cdocs"
+        self.upgradeAllCdocs(path='/'.join(self.getCompoundDocContainer().getPhysicalPath()))
+
     security.declarePrivate('getUpgradeableRecords')
-    def getUpgradeableRecords(self):
+    def getUpgradeableRecords(self, path=None):
         "get all the records for what we can upgrade"
         classVersion = Base.classVersion
         classUpdateVersion = Base.classUpdateVersion
-        for record in self.getPhysicalRoot().CDocUpgrader():
+        query = {}
+        if path is not None:
+            query['path'] = path
+        for record in self.getPhysicalRoot().CDocUpgrader(query):
             if record.objectVersion < classVersion or record.updateVersion < classUpdateVersion:
                 yield record
 
@@ -1182,6 +1190,7 @@ class CompoundDoc(Base, OFS.History.Historical, CatalogAware, UserObject):
         url = self.absolute_url_path()
         return '''<a href="%s/rebuildCDocUpgraderCatalog">Rebuild Catalog</a><br>
         <a href="%s/upgradeAllCdocs">Upgrade All Cdocs</a><br>
-        <a href="%s/upgradeCdoc">Upgrade This Cdoc</a>''' % (url, url, url)
+        <a href="%s/upgradeAllCdocsInFolder">Upgrade Cdocs in Folder</a><br>
+        <a href="%s/upgradeCdoc">Upgrade This Cdoc</a>''' % (url, url, url, url)
 
 Globals.InitializeClass(CompoundDoc)
