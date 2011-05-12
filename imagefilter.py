@@ -216,7 +216,7 @@ class ImageFilter(BasePicture):
     security.declareProtected('View', 'view')
     def view(self, urlCallable=None, parent=None, additionalAttributes='', drawHref=1, url_data=None):
         "Render page"
-        parent = parent if parent is not None else self.getRemoteImage()
+        #parent = parent if parent is not None else self.getRemoteImage()
         parent = parent if parent is not None else self.getCompoundDoc()
 
         if self.exists():
@@ -231,7 +231,7 @@ class ImageFilter(BasePicture):
 
             url_data = url_data if url_data is not None else self.url
             if drawHref and url_data:
-                href = com.html.generate_url(url_data, context, self.REQUEST, url_callable=urlCallable)
+                href = com.html.generate_url(url_data, parent, self.REQUEST, url_callable=urlCallable)
                 if href is not None:
                     image = '<a href="%s">%s</a>' % (href,image)
             return image
