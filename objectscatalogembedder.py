@@ -57,7 +57,7 @@ class ObjectsCatalogEmbedder(basecatalog.BaseCatalog):
         catalog = self.getRealCatalog()
         if catalog is None or self.inuse is None or (self.limit and len(self.inuse) > self.limit):
             return None
-        return [cdoc for cdoc in com.catalog.catalogIter(catalog(id=self.inuse))]
+        return list(com.catalog.catalogIter(catalog(id=self.inuse)))
 
     security.declarePrivate('limitOkay')
     def limitOkay(self):
