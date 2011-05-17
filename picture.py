@@ -108,9 +108,12 @@ class Picture(BasePicture):
                     self.resizeImage(filename)
                 elif self.getConfig('resaveOnUpload'):
                     temp_file,x,y = utility.resaveExistingImage(filename)
-                    self.data.manage_upload(open(filename, 'rb'))
-                    self.data.width = x
-                    self.data.height = y
+                    if temp_file is not None:
+                        self.data.manage_upload(temp_file)
+                        self.data.width = x
+                        self.data.height = y
+                    else:
+                        self.data.manage_upload(open(filename, 'rb'))
                 else:
                     self.data.manage_upload(open(filename, 'rb'))
                 self.updateParentPaths(set(['data']))
