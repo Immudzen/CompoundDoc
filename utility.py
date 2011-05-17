@@ -230,6 +230,7 @@ def resaveExistingImage(filename):
         (x, y) = image.size
         temp_file = saveImage(image, image.format)
         return temp_file, x, y
+    return None, None, None
 
 def removeRecordFromCatalog(catalog, record):
     "remove this record from the catalog"
