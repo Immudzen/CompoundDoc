@@ -46,9 +46,8 @@ class AutoCreatorGetter(Base):
         cdoclist = []
         for record,cdoc in com.catalog.catalogIterItems2(self.CDocUpgrader(path=folderUrl)):
             profile = record.profile
-            cdoc = i.getObject()
-            if profile and cdoc is not None:
-                path = i.getPath().replace(folderUrl,'')
+            if profile:
+                path = cdoc.getPath().replace(folderUrl,'')
                 cdoclist.append((path, profile, cdoc))
                 
         cdoclist.sort()
