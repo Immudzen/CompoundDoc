@@ -110,6 +110,7 @@ class Picture(BasePicture):
                     temp_file,x,y = utility.resaveExistingImage(filename)
                     if temp_file is not None:
                         self.data.manage_upload(temp_file)
+                        temp_file.close()
                         self.data.width = x
                         self.data.height = y
                     else:
@@ -183,6 +184,7 @@ class Picture(BasePicture):
                         self.data.height = y
                         #have to redo the content_type after we modify the image in case it has changed
                         content_type = magicfile.magic(temp_file.name)
+                        temp_file.close()
                         self.setFileSize()
                         self.storeContentType(content_type)
             utility.removeTempFile(filename, remove_after)
