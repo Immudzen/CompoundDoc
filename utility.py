@@ -199,6 +199,7 @@ def createTempFile(data):
         remove_after = 0
         return filename, remove_after
     handle, filename = tempfile.mkstemp()
+    os.close(handle)
     temp_file = open(filename, 'wb')
     try:
         temp_file.write(data.read())
