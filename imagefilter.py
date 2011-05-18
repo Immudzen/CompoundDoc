@@ -139,6 +139,7 @@ class ImageFilter(BasePicture):
                     self.image.height = y
                     #have to redo the content_type after we modify the image in case it has changed
                     content_type = magicfile.magic(temp_file.name)
+                    temp_file.close()
                     self.setFileSize()
                     self.image.content_type = content_type
             utility.removeTempFile(filename, remove_after)
