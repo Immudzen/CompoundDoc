@@ -216,7 +216,7 @@ def removeTempFile(filename, remove_after):
     
 def saveImage(pilImage, format):
     "saves the image via the filesystem since StringIO causes errors sometimes"
-    temp = tempfile.TemporaryFile()
+    temp = tempfile.NamedTemporaryFile()
     try:
         pilImage.save(temp, format, optimize=1)
     except IOError:
