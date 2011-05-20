@@ -123,14 +123,16 @@ class ControlProfileManager(ControlBase):
         records = catalog(path=path, profile=profileLimit)
         temp = []
         self.REQUEST.other['okayToRunNotification'] = 0
+        #only load the pickle data once instead of every time
+        profile_data = utility.objectLoadFile(profileSet)
         for record in utility.subTrans(records,  100):
             try:
                 cdoc = record.getObject()
                 if cdoc is not None:
                     if renderOnly:
-                        cdoc.changeDisplay(profileSet)
+                        cdoc.changeDisplay(doc=profile_data)
                     else:
-                        cdoc.changeProfile(profileSet)
+                        cdoc.changeProfile(doc=profile_data)
                     temp.append(cdoc.absolute_url_path())
                 else:
                     utility.removeRecordFromCatalog(catalog, record)
