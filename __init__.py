@@ -18,6 +18,7 @@ allow_module('com.html')
 allow_module('com.form')
 allow_module('com.catalog')
 allow_module('com.parsers')
+allow_module('com.db')
 
 
 def initialize(context):
