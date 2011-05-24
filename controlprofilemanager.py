@@ -7,6 +7,7 @@ import Globals
 from Acquisition import aq_base
 import utility
 import zExceptions
+import com.db
 
 class ControlProfileManager(ControlBase):
     "Input text class"
@@ -125,7 +126,7 @@ class ControlProfileManager(ControlBase):
         self.REQUEST.other['okayToRunNotification'] = 0
         #only load the pickle data once instead of every time
         profile_data = utility.objectLoadFile(profileSet)
-        for record in utility.subTrans(records,  100):
+        for record in com.db.subTrans(records,  100):
             try:
                 cdoc = record.getObject()
                 if cdoc is not None:
