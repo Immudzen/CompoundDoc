@@ -30,6 +30,7 @@ import persistent.mapping
 from Acquisition import Implicit
 import json
 import cgi
+import com.db
 
 import com.javascript
 
@@ -573,10 +574,10 @@ class DataRecorder(base.Base):
             
         if records is not None:
             if allowed is None:                
-                return [dict(record) for record in utility.subTransDeactivate(records.values(start, stop),  100, self.getPhysicalRoot()._p_jar.cacheGC)]
+                return [dict(record) for record in com.db.subTransDeactivate(records.values(start, stop),  100, self.getPhysicalRoot())]
             else:
                 recordsGen = (records[key] for key in self.allowedKeys(records, start, stop, allowed))
-                return [dict(record) for record in utility.subTransDeactivate(recordsGen,  100, self.getPhysicalRoot()._p_jar.cacheGC)]
+                return [dict(record) for record in com.db.subTransDeactivate(recordsGen,  100, self.getPhysicalRoot())]
                 
         return []
 
@@ -592,12 +593,12 @@ class DataRecorder(base.Base):
 
         if records is not None:
             if allowed is None:
-                for key,value in utility.subTrans(records.items(start, stop),  100):
+                for key,value in com.db.subTrans(records.items(start, stop),  100):
                     newData = script(value)
                     newData.update(value)
                     records[key] = persistent.mapping.PersistentMapping(newData)
             else:
-                for key in utility.subTrans(self.allowedKeys(records, start, stop, allowed),  100):
+                for key in com.db.subTrans(self.allowedKeys(records, start, stop, allowed),  100):
                     data = records[key]
                     newData = script(data)
                     newData.update(data)
@@ -709,11 +710,11 @@ class DataRecorder(base.Base):
     def convertDictToPersistentMapping(self):
         "convert the dictionaries we have stored to persistent mapping so they can be deactivated"
         if self.records is not None:
-            for key,value in utility.subTrans(self.records.items(), 500):
+            for key,value in com.db.subTrans(self.records.items(), 500):
                 self.records[key] = persistent.mapping.PersistentMapping(value)
         
         if self.archive is not None:
-            for key,value in utility.subTrans(self.archive.items(), 500):
+            for key,value in com.db.subTrans(self.archive.items(), 500):
                 self.archive[key] = persistent.mapping.PersistentMapping(value)
     convertDictToPersistentMapping = utility.upgradeLimit(convertDictToPersistentMapping, 167)
 
