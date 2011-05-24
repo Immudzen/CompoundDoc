@@ -44,6 +44,8 @@ import nestedlisturl as NestedListURL
 
 from Products.ZCatalog.ZCatalog import ZCatalog
 
+import com.db
+
 def manage_addCompoundDoc(self, id, profile=None, prepend=None, REQUEST=None, RESPONSE=None, redir=1, returnObject=None, folderCreate=None, cdocName=None, autoType=None):
     "Create a compounddoc with this id and profile"
     name = id
@@ -84,7 +86,6 @@ def manage_addCompoundDoc(self, id, profile=None, prepend=None, REQUEST=None, RE
         else: #if we already have an object or no valid name but we have no REQUEST it is being added from a script and None needs to be returned
             return None
     if profile is not None or (utility.isCleanFileName(profile) and utility.allowed_profile(profile)):
-        utility.log("adding a document", repr(container))
         container._setObject(name, CompoundDoc(name, profile))
     else:
         return None
@@ -340,7 +341,7 @@ class CompoundDoc(Base, OFS.History.Historical, CatalogAware, UserObject):
     security.declareProtected('CompoundDoc: Sub Transaction', 'subTransFunc')
     def subTransFunc(self, seq, func, count):
         "run this function using subtrasnactions"
-        return (func(item) for item in utility.subTrans(seq, count))
+        return (func(item) for item in com.db.subTrans(seq, count))
         
     security.declarePrivate('resetMaster')
     def resetMaster(self):
@@ -1148,7 +1149,7 @@ class CompoundDoc(Base, OFS.History.Historical, CatalogAware, UserObject):
         
         write = self.REQUEST.RESPONSE.write
         self.REQUEST.RESPONSE.setHeader('Content-Type', 'text/plain')
-        for record in utility.subTrans(upgradeMe,  100):
+        for record in com.db.subTrans(upgradeMe,  100):
             write('%s (%s)\n' % (record.getPath(), record.objectVersion))
             try:
                 cdoc = record.getObject()
