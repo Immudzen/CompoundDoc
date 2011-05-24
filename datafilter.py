@@ -6,6 +6,7 @@ from AccessControl import ClassSecurityInfo
 import Globals
 
 import utility
+import com.db
 
 import BTrees.OOBTree
 
@@ -154,7 +155,7 @@ class DataFilter(UserObject):
             
         
         if recordsGen is not None:
-            for key,record in utility.subTransDeactivateKeyValue(recordsGen,  100, self.getPhysicalRoot()._p_jar.cacheGC):
+            for key,record in com.db.subTransDeactivateKeyValue(recordsGen,  100, self.getPhysicalRoot()):
                 if keys:
                     yield key,[str(record.get(key, '')) for key in recordOrder]
                 else:
