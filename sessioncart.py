@@ -14,6 +14,7 @@ import bisect
 import urllib
 import cgi
 import com.catalog
+import com.db
 
 from BTrees.OOBTree import OOBTree
 
@@ -263,7 +264,7 @@ class SessionCart(base.Base):
                 self.preloadLocalData = OOBTree()
         localData = self.preloadLocalData
         
-        for cdoc in utility.subTrans(reversed(folder.objectValues('CompoundDoc')), 100):
+        for cdoc in com.db.subTrans(reversed(folder.objectValues('CompoundDoc')), 100):
             if not cdoc.profile:
                 username = cdoc.customerLogin(mode='view')
                 if username not in localData:
