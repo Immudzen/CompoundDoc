@@ -13,7 +13,6 @@ import sys
 import time
 import tempfile
 from BTrees.OOBTree import OOBTree
-import transaction
 import chardet
 
 import itertools
@@ -116,33 +115,6 @@ def isinstance(object, klass):
         return issubclass(object.__class__, klass)
     else:
         return 0
-
-def subTrans(seq,  count):
-    "do a subtransaction for every count"
-    for idx,  item in enumerate(seq):
-        if idx % count == 0:
-            transaction.savepoint(optimistic=True)
-        yield item
-        
-def subTransDeactivate(seq, count, cacheGC=None):
-    "do a subtransaction for every count and also deactivate all objects"
-    cacheGC = cacheGC if cacheGC is not None else lambda :None
-    for idx,  item in enumerate(seq):
-        if idx % count == 0:
-            cacheGC()
-            transaction.savepoint(optimistic=True)
-        yield item
-        item._p_deactivate()
-
-def subTransDeactivateKeyValue(seq, count, cacheGC=None):
-    "do a subtransaction for every count and also deactivate all objects"
-    cacheGC = cacheGC if cacheGC is not None else lambda :None
-    for idx,  item in enumerate(seq):
-        if idx % count == 0:
-            cacheGC()
-            transaction.savepoint(optimistic=True)
-        yield item
-        item[1]._p_deactivate()
 
 def log(name, short="", longMessage="", error_level=zLOG.INFO, reraise=0):
     "Log an error to a file"
