@@ -389,11 +389,6 @@ class Base(baseobject.BaseObject,
         for i in temp:
             i.issueEventProfileLast()
 
-    security.declarePrivate('eventProfileLast')
-    def eventProfileLast(self):
-        "run this event as the last thing the object will do before the profile is returned"
-        self.observerNotify()
-
     security.declarePublic('getUniqueMetaTypes')
     def getUniqueMetaTypes(self):
         "return all the unique meta_types found in this object"
