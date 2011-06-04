@@ -160,7 +160,7 @@ class File(UserObject):
             self.delObjects(('data','fileSize'))
         
         data = dict.pop('data', None)
-        if data is not None:
+        if data: #files are always uploaded but if the file has no data in it the test is false
             try:
                 if not self.data:
                     self.manage_addProduct['File'].manage_addFile('data', data)
@@ -304,6 +304,7 @@ class File(UserObject):
         self.fixFileId()
         self.fixBlankFileName()
         self.fixBlankTitle()
+        self.fixBlankFile()
 
     security.declarePrivate('updateTitle')
     def updateTitle(self):
@@ -389,7 +390,15 @@ class File(UserObject):
             self.title = 'Download File'
     fixBlankTitle = utility.upgradeLimit(fixBlankTitle, 173)
 
-            
+    security.declarePrivate('fixBlankFile')
+    def fixBlankFile(self):
+        "fix a bug where an empy file is uploaded"
+        if self.fileSize == '0.0 B':  #we don't want to load the child object if we can avoid it
+            if not self.data.size:
+                self.delObjects(('data','fileSize'))
+    fixBlankFile = utility.upgradeLimit(fixBlankFile, 177)
+    
+    
 Globals.InitializeClass(File)
 import register
 register.registerClass(File)
