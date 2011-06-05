@@ -243,8 +243,11 @@ class File(UserObject):
     def setFileSize(self):
         "Store the file size of this object"
         try:
-            fileSize = utility.fileSizeString(self.data.size)
-            self.setObject('fileSize', fileSize)
+            #0 length files should not have this field set
+            size = self.data.size
+            if size:
+                fileSize = utility.fileSizeString(size)
+                self.setObject('fileSize', fileSize)
         except AttributeError:
             pass
 
@@ -394,7 +397,7 @@ class File(UserObject):
     def fixBlankFile(self):
         "fix a bug where an empy file is uploaded"
         if self.fileSize == '0.0 B':  #we don't want to load the child object if we can avoid it
-            if not self.data.size:
+            if self.data is None or not self.data.size:
                 self.delObjects(('data','fileSize'))
     fixBlankFile = utility.upgradeLimit(fixBlankFile, 177)
     
