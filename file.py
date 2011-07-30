@@ -217,7 +217,7 @@ class File(UserObject):
                     fileSize = '(%s)' % fileSize
             else:
                 fileSize = ''
-            return '<a href="%s%s" %s>%s</a> %s' % (url, queryString, target, title, fileSize)
+            return '<a href="%s%s" %s class="file">%s</a> %s' % (url, queryString, target, title, fileSize)
         return ""
 
     security.declareProtected('View', 'getUrlWithExtension')
