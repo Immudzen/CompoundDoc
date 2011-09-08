@@ -29,7 +29,7 @@ import register
 
 import basewidget
 
-from BTrees.OOBTree import difference
+from BTrees.OOBTree import difference,intersection
 
 import Acquisition
 
@@ -209,6 +209,9 @@ class CompoundDoc(Base, OFS.History.Historical, CatalogAware, UserObject):
 
     security.declareProtected('Access contents information', 'OOdifference')
     OOdifference = difference
+    
+    security.declareProtected('Access contents information', 'OOintersection')
+    OOintersection = intersection
 
     security.declarePrivate('atomicSubmit')
     def atomicSubmit(self):
