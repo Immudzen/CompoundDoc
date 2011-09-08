@@ -156,10 +156,11 @@ class DataFilter(UserObject):
         
         if recordsGen is not None:
             for key,record in com.db.subTransDeactivateKeyValue(recordsGen,  100, self.getPhysicalRoot()):
+                data = [str(record.get(name, '')) for name in recordOrder]
                 if keys:
-                    yield key,[str(record.get(key, '')) for key in recordOrder]
+                    yield key,data
                 else:
-                    yield [str(record.get(key, '')) for key in recordOrder]
+                    yield data
 
     security.declarePrivate('classUpgrader')
     def classUpgrader(self):
