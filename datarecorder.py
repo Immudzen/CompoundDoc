@@ -43,7 +43,8 @@ class Record(SimpleItem):
         if script is not None:
             data = script(self, data, parent)
         self.__dict__.update(data)
-        self.id = float(name)
+        self.id = repr(name)
+        self.record_id = name
         self.recordDate = DateTime.DateTime(float(name))
         
     security.declarePublic('index_html')
@@ -56,7 +57,7 @@ class Record(SimpleItem):
         format = '<div>%s: %s</div>'
         
         temp = []
-        temp.append(format % ('ID', repr(self.id))) 
+        temp.append(format % ('ID', self.id)) 
         for key, value in self.__dict__.iteritems():
             if key != "id":
                 temp.append(format % (key, cgi.escape(repr(value),1)))
@@ -231,11 +232,13 @@ class DataRecorder(base.Base):
             recordName = None
         if self.records is not None and self.records.has_key(recordName):
             "object has an object with name return that"
-            doc = Record(name=name, data=self.records[recordName], script=self.getRecordScript(), parent=self).__of__(self)
+            data = self.records[recordName]
+            doc = Record(name=name, data=data, script=self.getRecordScript(), parent=self).__of__(self)
             return doc
         if self.archive is not None and self.archive.has_key(recordName):
             "object has an object with name return that"
-            doc = Record(name=name, data=self.archive[recordName], script=self.getRecordScript(), parent=self).__of__(self)
+            data = self.archive[recordName]
+            doc = Record(name=name, data=data, script=self.getRecordScript(), parent=self).__of__(self)
             return doc
         guard = object()
         item = getattr(self, name, guard)
@@ -439,7 +442,7 @@ class DataRecorder(base.Base):
         
         if form.pop('addRecords',None):
             self.addRecordsToCatalog()
-        
+                 
         if form.pop('addRecordsArchive',None):
             self.addRecordsToCatalogArchive()
         elif  self.getConfig('allowArchive') and form.pop('archive',None):
@@ -508,7 +511,8 @@ class DataRecorder(base.Base):
             catalog_object = catalog.catalog_object
             docPath = self.getPath()
             for key, value in records.items():
-                doc = Record(name=repr(key), data=copy.deepcopy(value), script=self.getRecordScript(), parent=self).__of__(self)
+                data = copy.deepcopy(value)
+                doc = Record(name=repr(key), data=data, script=self.getRecordScript(), parent=self).__of__(self)
                 path = '/'.join([docPath, repr(key)])
                 catalog_object(doc, uid=path)
 
@@ -533,7 +537,7 @@ class DataRecorder(base.Base):
     #    ('SeperatorDataFilter', ('create', 'SeperatorDataFilter')))
 
     security.declareProtected('Python Record Addition', 'addDictObject')
-    def addDictObject(self, dict):
+    def addDictObject(self, dict, entryTime=None):
         "Add a dict like object and copy its contents into the records list update fileldMap also"
         temp = copy.deepcopy(dict)
         
@@ -545,25 +549,29 @@ class DataRecorder(base.Base):
             if key not in fieldList:
                 fieldList.append(key)
         if fieldList:
-            self.setObject('fieldList', fieldList)
+            self.fieldList = fieldList
         if temp:
-            entryTime = time.time()
+            if entryTime is None:
+                entryTime = time.time()
             if self.records is None:
                 self.setObject('records' ,BTrees.OOBTree.OOBTree())
             if self.recordsLength is None:
                 self.setObject('recordsLength' ,BTrees.Length.Length())
 
-            self.records[entryTime] = persistent.mapping.PersistentMapping(temp)
+            data = persistent.mapping.PersistentMapping(temp)
+
+            self.records[entryTime] = data
             self.recordsLength.change(1)
             catalog = self.getCatalog()
             if catalog is not None:
-                doc = Record(name=repr(entryTime), data=temp, script=self.getRecordScript(), parent=self).__of__(self)
+                data = temp
+                doc = Record(name=repr(entryTime), data=data, script=self.getRecordScript(), parent=self).__of__(self)
                 path = '/'.join([self.getPath(), repr(entryTime)])
                 catalog.catalog_object(doc, uid=path)
 
 
     security.declareProtected('Python Record Access', 'getListDict')
-    def getListDict(self, start=None, stop=None, query=None, archive=None):
+    def getListDict(self, start=None, stop=None, query=None, archive=None, keys=None):
         "Return the list that has all the dicts in it for python script use only"
         allowed = self.getAllowedRecords(query)
         
@@ -573,11 +581,29 @@ class DataRecorder(base.Base):
             records = self.records
             
         if records is not None:
-            if allowed is None:                
-                return [dict(record) for record in com.db.subTransDeactivate(records.values(start, stop),  100, self.getPhysicalRoot())]
+            
+            if keys:
+                subTrans = com.db.subTransDeactivateKeyValue
             else:
-                recordsGen = (records[key] for key in self.allowedKeys(records, start, stop, allowed))
-                return [dict(record) for record in com.db.subTransDeactivate(recordsGen,  100, self.getPhysicalRoot())]
+                subTrans = com.db.subTransDeactivate
+            
+            if allowed is None:
+                if keys:
+                    seq = records.items(start, stop)
+                else:
+                    seq = records.values(start, stop)
+                results = subTrans(seq,  100, self.getPhysicalRoot())
+            else:
+                if keys:
+                    recordsGen = ((key,records[key]) for key in self.allowedKeys(records, start, stop, allowed))
+                else:
+                    recordsGen = (records[key] for key in self.allowedKeys(records, start, stop, allowed))
+                results = subTrans(recordsGen,  100, self.getPhysicalRoot())
+            
+            if keys:
+                return [(key,dict(record)) for key,record in results]
+            else:
+                return [dict(record) for record in results]
                 
         return []
 
@@ -596,13 +622,15 @@ class DataRecorder(base.Base):
                 for key,value in com.db.subTrans(records.items(start, stop),  100):
                     newData = script(value)
                     newData.update(value)
-                    records[key] = persistent.mapping.PersistentMapping(newData)
+                    newData = persistent.mapping.PersistentMapping(newData)
+                    records[key] = newData
             else:
                 for key in com.db.subTrans(self.allowedKeys(records, start, stop, allowed),  100):
                     data = records[key]
                     newData = script(data)
                     newData.update(data)
-                    records[key] = persistent.mapping.PersistentMapping(newData)
+                    newData = persistent.mapping.PersistentMapping(newData)
+                    records[key] = newData
         return []
 
     security.declarePrivate("getAllowedRecords")
@@ -611,7 +639,7 @@ class DataRecorder(base.Base):
         if query is not None:
             catalog = self.getCatalog()
             if catalog is not None:
-                return BTrees.OOBTree.OOTreeSet(record.id for record in catalog(query))
+                return BTrees.OOBTree.OOTreeSet(float(record.record_id) for record in catalog(query))
 
     security.declarePrivate("allowedKeys")
     def allowedKeys(self, records, start, stop, allowed):
