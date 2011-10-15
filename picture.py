@@ -95,8 +95,8 @@ class Picture(BasePicture):
     security.declarePrivate('before_manage_edit')
     def before_manage_edit(self, dict):
         "This is the object specific edit stuff"
-        if dict.pop('_del',None) == 'Y' and self.getConfig('deletion'):
-            self.delObjects(('data','imagesrc','thumbnail', 'fileSize', 'imagesrc_template'))
+        if dict.pop('_del',None) == 'Y':
+            self.clear()
 
         if dict.get('data', None):  #don't process if data does not have anything in it
             filename, remove_after = utility.createTempFile(dict['data'])
@@ -127,7 +127,13 @@ class Picture(BasePicture):
             del dict['data']
         except KeyError:
             pass
-                
+ 
+    security.declareProtected('Change CompoundDoc', 'clear')
+    def clear(self):
+        "clear this image"
+        if self.getConfig('deletion'):
+            self.delObjects(('data','imagesrc','thumbnail', 'fileSize', 'imagesrc_template'))
+ 
     security.declarePrivate('after_manage_edit')
     def after_manage_edit(self, dict):
         "cache some information after this object has been modified"
