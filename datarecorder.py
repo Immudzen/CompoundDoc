@@ -159,9 +159,9 @@ class DataRecorder(base.Base):
         return format % (self.getPrimaryMenu(archive=archive), path, archive, path, archive)
 
     security.declareProtected('View management screens', 'loadRecord')
-    def loadRecord(self, archive, selectedDocument):
+    def loadRecord(self, archive, selectedDocument, merge=0):
         "load this record and return it for AJAX"
-        name, data = self.getSelectedDocument(archive=archive, selectedDocument=selectedDocument)
+        name, data = self.getSelectedDocument(archive=archive, selectedDocument=selectedDocument, merge=merge)
         doc = 'Can Not Load Document'
         if name is not None and data is not None:
             doc = Record(name=name, data=data, script=self.getRecordScript(), parent=self).__of__(self).index_html()
@@ -208,9 +208,15 @@ class DataRecorder(base.Base):
         return ''.join(temp)
 
     security.declarePrivate('getSelectedDocument')
-    def getSelectedDocument(self, archive=0, selectedDocument=None):
+    def getSelectedDocument(self, archive=0, selectedDocument=None, merge=0):
         "get the currently selected document"
-        if archive:
+        if merge:
+            records = BTrees.OOBTree.OOBTree()
+            if self.records is not None:
+                records.update(self.records)
+            if self.archive is not None:
+                records.update(self.archive)
+        elif archive:
             records = self.archive
         else:
             records = self.records
