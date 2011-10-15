@@ -122,12 +122,12 @@ class DataFilter(UserObject):
         if start is None and self.startTime is not None:
             startTime = self.startTime(mode='view')
             if startTime:
-                start = startTime
+                start = startTime.earliestTime()
             
         if stop is None and self.stopTime is not None:
             stopTime = self.stopTime(mode='view')
             if stopTime:
-                stop = stopTime
+                stop = stopTime.latestTime()
                 
         recordOrder, recordNames = zip(*order)
             
@@ -136,7 +136,7 @@ class DataFilter(UserObject):
         if query is not None:
             catalog = self.getCatalog(archive)
             if catalog is not None:
-                allowed = set(float(record.id) for record in catalog(query))
+                allowed = BTrees.OOBTree.OOSet((float(record.record_id) for record in catalog(query)))
             
         if header:
             yield recordNames
@@ -147,11 +147,14 @@ class DataFilter(UserObject):
                 recordsGen = records.items(start, stop)[sliceStart:sliceStop]
             else:
                 recordsGen = records.items(start, stop)
-        else:
+        else:  #when searching with the catalog we need to seperate the Start,Stop case from not having those bounds
+            #the slice case probably needs to be massively updated also
             if sliceStart is not None and sliceStop is not None:
                 recordsGen = ( (name,value) for name, value in records.items(start, stop)[sliceStart:sliceStop] if name in allowed)
+            elif start is not None or stop is not None:
+                recordsGen = ( (name,records[name]) for name in BTrees.OOBTree.intersection(BTrees.OOBTree.OOSet(records.keys(start,stop)), allowed))
             else:
-                recordsGen = ( (name,value) for name, value in records.items(start, stop) if name in allowed)
+                recordsGen = ( (name,records[name]) for name in BTrees.OOBTree.intersection(records, allowed))
             
         
         if recordsGen is not None:
