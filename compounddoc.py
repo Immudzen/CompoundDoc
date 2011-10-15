@@ -1059,6 +1059,8 @@ class CompoundDoc(Base, OFS.History.Historical, CatalogAware, UserObject):
             self.aq_parent.manage_delObjects([self.getId()])
             url = form.pop('deleteDocReturnPath', None)
             url = url or self.REQUEST.environ.get('HTTP_REFERER', None) or self.aq_parent.absolute_url()
+            if url == 'None':
+                return
             self.REQUEST.other['redirectTo'] = url
             #have to clear the form so that we don't try to process anything in it for a document that is to be removed causing it to be reindexed
             form.clear()
