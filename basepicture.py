@@ -95,7 +95,7 @@ class BasePicture(File):
         "__bobo_traverse__"
         if name.startswith('ver_'):
             name = self.REQUEST.TraversalRequestNameStack.pop()
-            self.REQUEST.RESPONSE.setHeader('Cache-Control', 'max-age=315360000')
+            self.REQUEST.RESPONSE.setHeader('Cache-Control', 'public,max-age=315360000')
             self.REQUEST.RESPONSE.setHeader('Expires', 'Thu, 01 Dec 2030 12:00:0')
         obj = getattr(self, name, None)
         if obj is not None:
