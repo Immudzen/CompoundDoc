@@ -143,7 +143,7 @@ class BasePicture(File):
     security.declarePrivate('small')
     def small(self):
         "Draw a small version of the object"
-        if self.exists():
+        if self.exists() and self.thumbnail is not None:
             decode = {'url': self.absolute_url_path_extension_thumbnail(),
               'fullUrl':self.absolute_url_path_extension(),
               'height':self.thumbnail.height ,
