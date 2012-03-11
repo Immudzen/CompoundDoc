@@ -19,6 +19,7 @@ allow_module('com.form')
 allow_module('com.catalog')
 allow_module('com.parsers')
 allow_module('com.db')
+allow_module('com.google')
 
 
 def initialize(context):
