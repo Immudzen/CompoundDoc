@@ -28,6 +28,8 @@ class AutoPopulator(AutoCreator):
     security.declareProtected('Change CompoundDoc', 'createDocuments')
     def createDocuments(self, folder, data):
         "create documents at this path using this data"
+        if '\r\n' in data:
+            data = data.replace('\r\n', '\n')
         entries = [entry.split('\n') for entry in data.split('\n\n\n')]
         pathEntries = [(entry[0].split(' ', 1), entry[1:]) for entry in entries]
         try:
