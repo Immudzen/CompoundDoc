@@ -233,6 +233,7 @@ class Base(baseobject.BaseObject,
         scriptPath = self.getConfig('scriptChangePath')
         if scriptPath and self.REQUEST.other.get('okayToRunNotification',  1):
             script = self.restrictedTraverse(scriptPath, None)
+            #self.log("I would have run")
             if script is not None:
                 script(self)
 
