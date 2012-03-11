@@ -22,6 +22,7 @@ class InputNumber(UserObject):
     calculated = None
     scriptChangePath = ''
     
+    classConfig = {}
     classConfig['scriptChangePath'] = {'name':'Path to change notification script', 'type': 'path'}
 
     security.declareProtected("Access contents information", "float")
